@@ -6,6 +6,18 @@ use App\Controllers\Formbuilder;
 
 $f = new formbuilder();
 
+$editdata = array(
+    'secret' => 'lakd',
+    'fname' => 'Steven',
+    'pickone' => 'two'
+);
+
+$f->setEditData($editdata);
+
+
+
+
+
 $f->hidden('secret', 'mysecret');
 
 $f->field('text', 'fname', 'First Name')

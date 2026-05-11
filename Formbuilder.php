@@ -3,7 +3,7 @@
 // @TODO alphabetize
 // @TODO create tabindex in order of field creation? set honeypot = -1
 // @TODO create honeypot form element automatically?
-
+// @TODO fill in docblocks; use old version for help
 
 
 namespace App\Controllers;
@@ -27,6 +27,11 @@ class Formbuilder {
      */
     protected $currentfield;
 
+    /**
+     * 
+     */
+    protected $editdata;
+
 
     /**
      * create new instance of validator class
@@ -37,6 +42,7 @@ class Formbuilder {
 
         $this->form = array();
         $this->currentfield = NULL;
+        $this->editdata = array();
     }
 
 
@@ -67,6 +73,10 @@ class Formbuilder {
 		);
 
         // @TODO switch for default settings for various form elements
+
+        // set edit data if present
+        // @TODO test against attr() method = calling attr() after field() will overwrite this...
+        // $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
 
         return $this;
     }
@@ -119,11 +129,98 @@ class Formbuilder {
 
     /**
      * display the form element
-     * @TODO finish
+     * @TODO revise and finish
      */
     public function show($name) {
         // display the form element
-        return $this;
+		// put the form element into a local variable
+		$info = $this->elements[$name];
+
+		// determine value: edit/POST/GET/etc
+		$info = $this->determineValue($info);
+
+		// use switch statement to echo form element based on type
+		switch($info['attr']['type']) {
+			case 'button':
+				$string = '<button' . $this->createAttributes($info) . '>';
+				$string .= $info['label'];
+				$string .= '</button>';
+				break;
+
+			case 'captcha':
+				echo 'captcha';
+				break;
+
+			case 'checkbox':
+				$string = '<div class="form-check">';
+				$string .= '<input' . $this->createAttributes($info) . ' />';
+				$string .= $this->createLabel($info);
+				$string .= '</div>';
+				break;
+
+			case 'hidden':
+				$string = '<input' . $this->createAttributes($info) . ' />';
+				break;
+
+			case 'radio':
+				echo 'radio';
+				// determineValue
+				break;
+
+			case 'reset':
+				$string = '<button' . $this->createAttributes($info) . '>';
+				$string .= $info['label'];
+				$string .= '</button>';
+				break;
+
+			case 'search':
+				echo 'search';
+				// determineValue?
+				break;
+
+			case 'select':
+				$string = $this->createLabel($info);
+				$string .= '<select' . $this->createAttributes($info) . '>';
+
+				// create "placeholder" if present, else show empty option
+				if(isset($info['attr']['placeholder'])) {
+					$string .= '<option disabled selected>' . $info['attr']['placeholder'] . '</option>';
+				}
+				else {
+					$string .= '<option value=""></option>';
+				}
+
+				foreach($info['choices'] as $key => $val) {
+					$string .= '<option value="' . $key . '"';
+
+					if($key == $info['attr']['value']) {
+						$string .= ' selected';
+					}
+
+					$string .= '>' . $val . '</option>';
+				}
+				$string .= '</select>';
+				break;
+
+			case 'submit':
+				$string = '<button' . $this->createAttributes($info) . '>';
+				$string .= $info['label'];
+				$string .= '</button>';
+				break;
+
+			case 'textarea':
+				$string = $this->createLabel($info);
+				$string .= '<textarea' . $this->createAttributes($info) . '>';
+				$string .= $info['attr']['value'];
+				$string .= '</textarea>';
+				break;
+
+			default:
+				$string = $this->createLabel($info);
+				$string .= '<input' . $this->createAttributes($info) . ' />';
+		}
+
+		echo $string;
     }
 
 
@@ -131,7 +228,63 @@ class Formbuilder {
 // @TODO 
 
     protected function createAttr() {
+		// make class array into a string
+		if(!empty($array['attr']['class'])) {
+			$array['attr']['class'] = implode(' ', $array['attr']['class']);
+		}
 
+		// string for attributes
+		$string = NULL;
+
+		// define array of non-used attributes
+		$notused = array();
+
+		// each element has an array of attributes to NOT USE
+		switch($array['attr']['type']) {
+			case 'button':
+				$notused = array('checked', 'placeholder');
+				break;
+
+			case 'checkbox':
+				$notused = array('placeholder');
+				break;
+
+			case 'radio':
+				$notused = array('id', 'disabled', 'checked', 'value', 'placeholder', 'autofocus');
+				break;
+
+			case 'select':
+				$notused = array('type', 'checked', 'value');
+				break;
+
+			case 'textarea':
+				$notused = array('type', 'checked', 'value');
+				break;
+
+			// inputs and undefined elements
+			default:
+				$notused = array('checked');
+		}
+
+		// step thru the array adding attributes
+		foreach($array['attr'] as $key => $val) {
+			if(!in_array($key, $notused)) {
+				if(is_bool($val)) {
+					if($val == true) {
+						$string .= ' ' . $key;
+					}
+				}
+				else {
+					// allows for VALUE to be set to zero!
+					if(!empty($val) || $val == 0) {
+						$string .= ' ' . $key . '="' . htmlentities((string)$val, ENT_QUOTES) . '"';
+					}
+				}
+			}
+		}
+
+		// return the string
+		return $string;
     }
 
 
@@ -140,15 +293,56 @@ class Formbuilder {
     }
 
 
+    // @TODO test radio, checkbox, etc
     protected function determineValue() {
+		// define type of form element as a shorthand
+		$type = $array['attr']['type'];
 
+		// start with value given in the ELEMENT array
+		$value = $array['attr']['value'];
+
+		// if EDIT given, use it
+		if(isset($this->editData[$array['attr']['name']])) {
+			if($type == 'checkbox') {
+				$array['attr']['checked'] = true;
+			}
+			else {
+				$value = $this->editData[$array['attr']['name']];
+			}
+		}
+
+		// if POST given, use it
+		if(isset($_POST[$array['attr']['name']])) {
+			if($type == 'checkbox') {
+				$array['attr']['checked'] = true;
+			}
+			else {
+				$value = $_POST[$array['attr']['name']];
+			}
+		}
+
+		// if GET given, use it
+		if(isset($_GET[$array['attr']['name']])) {
+			if($type == 'checkbox') {
+				$array['attr']['checked'] = true;
+			}
+			else {
+				$value = $_GET[$array['attr']['name']];
+			}
+		}
+
+		// set the VALUE in the ELEMENTS array
+		$array['attr']['value'] = $value;
+
+		return $array;
     }
 
 
     // @TODO rename?
-    // @TODO replace form values at run time rather than show() form element?
-    public function setEditData() {
-
+    // @TODO do I set editData array? or just form data values? I have to use the editdata in the show() method so it does not get overwritten! this is done in the determineValue() method
+    // uses associative array from database, etc to populate form
+    public function setEditData($data) {
+        $this->editdata = $data;
     }
 
 

@@ -4,6 +4,7 @@
 // @TODO create tabindex in order of field creation? set honeypot = -1
 // @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
+// @TODO simple foreach() to show all form elements quickly?
 
 
 namespace App\Controllers;
@@ -56,6 +57,9 @@ class Formbuilder {
      */
 	// @TODO review input types
 	// https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/HTML5_input_types
+    // @TODO add switch type (like checkbox)
+    // @TODO input groups?
+    // @TODO button addons?
 
     public function field($type, $name, $label = NULL) {
 		// set the master key
@@ -76,66 +80,60 @@ class Formbuilder {
 		);
 
         // @TODO switch for default settings for various form elements
+        // @TODO fix setLabelClass for radio, checkbox, etc
 		switch($type) {
 			case 'button':
-				$this->form[$this->currentfield]['attr']['class'][] = 'btn';
+                $this->attr('class', 'btn');
 				break;
 
 			case 'checkbox':
+                $this->attr('class', 'form-check-input')->attr('value', 'yes')->attr('checked', false);
 				break;
 
-			case 'date':
-				$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Select a date')->attr('autocomplete', 'off');
-				break;
-
-			// case 'period':
-			// 	$this->attr('placeholder', 'Ex: ' . date('MY'));
-			// 	break;
-
-			// @TODO not needed
-			// case 'phone':
+			// case 'date':
+			// 	$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Select a date')->attr('autocomplete', 'off');
 			// 	break;
 
 			case 'radio':
+                $this->attr('class', 'form-check-input');
 				break;
 
 			case 'reset':
-				break;
-
-			case 'search':
+                $this->attr('class', 'btn');
 				break;
 
 			case 'select':
+                $this->attr('class', 'form-select');
 				break;
 
 			case 'state':
-				break;
-/*
-				$this->setAttr('class', 'form-control');
-				$this->setAttr('type', 'text');
-				$this->setAttr('placeholder', '2 letter abbreviation');
-				*/
-			case 'submit':
-				$this->form[$this->currentfield]['attr']['class'][] = 'btn';
+                // @TODO maybe make this a select with state abbreviations?
+                $this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', '2 letter abbreviation');
 				break;
 
-			case 'text':
+			case 'submit':
+                $this->attr('class', 'btn');
 				break;
 
 			case 'textarea':
-				$this->attr('class', 'form-control')->attr('rows', 5);
+				$this->attr('class', 'form-control');
 				break;
 
+            // @TODO needed?
 			case 'zip':
 				$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Standard or zip+4 format');
 				break;
 
+            // basic text input
 			default:
 				$this->attr('class', 'form-control');
 		}
 
         // set editdata if present
-        $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
+        if(isset($this->editdata[$this->currentfield])) {
+            $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
+        }
+        
 
         return $this;
     }
@@ -163,6 +161,11 @@ class Formbuilder {
 			// if editdata present, set it
 			if($key == 'value' && isset($this->editdata[$this->currentfield])) {
 				$this->form[$this->currentfield]['attr'][$key] = $this->editdata[$this->currentfield];
+
+                // @TODO if() for checkbox and radio; fix this!
+                if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
 			}
 			else {
 				$this->form[$this->currentfield]['attr'][$key] = $val;
@@ -205,11 +208,16 @@ class Formbuilder {
 		// echo form element based on type 
 		switch($info['attr']['type']) {
 			case 'button':
-				$string = 'button';
+				$string = '<button' . $this->createAttributes($info) . '>';
+				$string .= $info['label'];
+				$string .= '</button>';
 				break;
 
 			case 'checkbox':
-				$string = 'checkbox';
+				$string = '<div class="form-check">';
+				$string .= '<input' . $this->createAttributes($info) . ' />';
+				$string .= $this->createLabel($info);
+				$string .= '</div>';
 				break;
 
 			case 'radio':
@@ -217,11 +225,9 @@ class Formbuilder {
 				break;
 
 			case 'reset':
-				$string = 'reset';
-				break;
-
-			case 'search':
-				$tring = 'search';
+				$string = '<button' . $this->createAttributes($info) . '>';
+				$string .= $info['label'];
+				$string .= '</button>';
 				break;
 
 			case 'select':
@@ -245,6 +251,10 @@ class Formbuilder {
 				}
 				$string .= '</select>';
 				break;
+
+            case 'state':
+                $string = 'state dropdown';
+                break;
 
 			case 'submit':
 				$string = '<button' . $this->createAttributes($info) . '>';
@@ -322,6 +332,9 @@ class Formbuilder {
 
 // @TODO 
 
+    // @TODO buttons can use attr: form, formaction, formmethod, formtarget, formenctype, formnovalidate
+    // @TODO button also: autofocus, command, commandfor, disabled, value
+    // @TODO button type: submit, reset, button
     protected function createAttributes($array) {
 		// make class array into a string
 		if(!empty($array['attr']['class'])) {

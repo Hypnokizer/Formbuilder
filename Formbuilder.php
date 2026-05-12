@@ -54,6 +54,9 @@ class Formbuilder {
      * @param string $name name of the field/key as on data to validate
      * @param string $alias optional alias to use on error messages instead of field name
      */
+	// @TODO review input types
+	// https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/HTML5_input_types
+
     public function field($type, $name, $label = NULL) {
 		// set the master key
 		$this->currentfield = $name;
@@ -73,10 +76,66 @@ class Formbuilder {
 		);
 
         // @TODO switch for default settings for various form elements
+		switch($type) {
+			case 'button':
+				$this->form[$this->currentfield]['attr']['class'][] = 'btn';
+				break;
 
-        // set edit data if present
-        // @TODO test against attr() method = calling attr() after field() will overwrite this...
-        // $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
+			case 'checkbox':
+				break;
+
+			case 'date':
+				$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Select a date')->attr('autocomplete', 'off');
+				break;
+
+			// case 'period':
+			// 	$this->attr('placeholder', 'Ex: ' . date('MY'));
+			// 	break;
+
+			// @TODO not needed
+			// case 'phone':
+			// 	break;
+
+			case 'radio':
+				break;
+
+			case 'reset':
+				break;
+
+			case 'search':
+				break;
+
+			case 'select':
+				break;
+
+			case 'state':
+				break;
+/*
+				$this->setAttr('class', 'form-control');
+				$this->setAttr('type', 'text');
+				$this->setAttr('placeholder', '2 letter abbreviation');
+				*/
+			case 'submit':
+				$this->form[$this->currentfield]['attr']['class'][] = 'btn';
+				break;
+
+			case 'text':
+				break;
+
+			case 'textarea':
+				$this->attr('class', 'form-control')->attr('rows', 5);
+				break;
+
+			case 'zip':
+				$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Standard or zip+4 format');
+				break;
+
+			default:
+				$this->attr('class', 'form-control');
+		}
+
+        // set editdata if present
+        $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
 
         return $this;
     }
@@ -101,7 +160,13 @@ class Formbuilder {
             $this->form[$this->currentfield]['attr'][$key][] = $val;
         }
         else {
-            $this->form[$this->currentfield]['attr'][$key] = $val;
+			// if editdata present, set it
+			if($key == 'value' && isset($this->editdata[$this->currentfield])) {
+				$this->form[$this->currentfield]['attr'][$key] = $this->editdata[$this->currentfield];
+			}
+			else {
+				$this->form[$this->currentfield]['attr'][$key] = $val;
+			}
         }
 
         return $this;
@@ -132,64 +197,43 @@ class Formbuilder {
      * @TODO revise and finish
      */
     public function show($name) {
-        // display the form element
 		// put the form element into a local variable
-		$info = $this->elements[$name];
+		$info = $this->form[$name];
 
-		// determine value: edit/POST/GET/etc
-		$info = $this->determineValue($info);
+		// determine value?
 
-		// use switch statement to echo form element based on type
+		// echo form element based on type 
 		switch($info['attr']['type']) {
 			case 'button':
-				$string = '<button' . $this->createAttributes($info) . '>';
-				$string .= $info['label'];
-				$string .= '</button>';
-				break;
-
-			case 'captcha':
-				echo 'captcha';
+				$string = 'button';
 				break;
 
 			case 'checkbox':
-				$string = '<div class="form-check">';
-				$string .= '<input' . $this->createAttributes($info) . ' />';
-				$string .= $this->createLabel($info);
-				$string .= '</div>';
-				break;
-
-			case 'hidden':
-				$string = '<input' . $this->createAttributes($info) . ' />';
+				$string = 'checkbox';
 				break;
 
 			case 'radio':
-				echo 'radio';
-				// determineValue
+				$string = 'radio';
 				break;
 
 			case 'reset':
-				$string = '<button' . $this->createAttributes($info) . '>';
-				$string .= $info['label'];
-				$string .= '</button>';
+				$string = 'reset';
 				break;
 
 			case 'search':
-				echo 'search';
-				// determineValue?
+				$tring = 'search';
 				break;
 
 			case 'select':
 				$string = $this->createLabel($info);
 				$string .= '<select' . $this->createAttributes($info) . '>';
-
-				// create "placeholder" if present, else show empty option
+				// create placeholder if present, else show empty option
 				if(isset($info['attr']['placeholder'])) {
 					$string .= '<option disabled selected>' . $info['attr']['placeholder'] . '</option>';
 				}
 				else {
 					$string .= '<option value=""></option>';
 				}
-
 				foreach($info['choices'] as $key => $val) {
 					$string .= '<option value="' . $key . '"';
 
@@ -218,16 +262,67 @@ class Formbuilder {
 			default:
 				$string = $this->createLabel($info);
 				$string .= '<input' . $this->createAttributes($info) . ' />';
+
 		}
 
 		echo $string;
+
+
+
+        // display the form element
+		// put the form element into a local variable
+		// $info = $this->elements[$name];
+
+		// determine value: edit/POST/GET/etc
+		// $info = $this->determineValue($info);
+
+		// use switch statement to echo form element based on type
+		// switch($info['attr']['type']) {
+		// 	case 'button':
+		// 		$string = '<button' . $this->createAttributes($info) . '>';
+		// 		$string .= $info['label'];
+		// 		$string .= '</button>';
+		// 		break;
+
+			// case 'captcha':
+			// 	echo 'captcha';
+			// 	break;
+
+			// case 'checkbox':
+			// 	$string = '<div class="form-check">';
+			// 	$string .= '<input' . $this->createAttributes($info) . ' />';
+			// 	$string .= $this->createLabel($info);
+			// 	$string .= '</div>';
+			// 	break;
+
+			// case 'hidden':
+			// 	$string = '<input' . $this->createAttributes($info) . ' />';
+			// 	break;
+
+			// case 'radio':
+			// 	echo 'radio';
+			// 	// determineValue
+			// 	break;
+
+			// case 'reset':
+			// 	$string = '<button' . $this->createAttributes($info) . '>';
+			// 	$string .= $info['label'];
+			// 	$string .= '</button>';
+			// 	break;
+
+		// 	case 'search':
+		// 		echo 'search';
+		// 		// determineValue?
+		// 		break;
+
+
     }
 
 
 
 // @TODO 
 
-    protected function createAttr() {
+    protected function createAttributes($array) {
 		// make class array into a string
 		if(!empty($array['attr']['class'])) {
 			$array['attr']['class'] = implode(' ', $array['attr']['class']);
@@ -288,8 +383,27 @@ class Formbuilder {
     }
 
 
-    protected function createLabel() {
 
+	/**
+	 * @TODO refine and finish
+	 * @TODO "label" uses array?
+	 */
+    protected function createLabel($array) {
+		if(!empty($array['label'])) {
+			// start label string
+			$string = '<label for="' . $array['attr']['id'] . '"';
+
+			if(!empty($array['labelclass'])) {
+				$string .= ' class="' . $array['labelclass'] . '"';
+			}
+
+			$string .= '>' . $array['label'] . '</label>';
+
+			return $string;
+		}
+		else {
+			return NULL;
+		}
     }
 
 

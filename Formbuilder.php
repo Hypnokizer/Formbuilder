@@ -1,6 +1,6 @@
 <?php 
 
-// @TODO alphabetize
+// @TODO alphabetize methods or group related; use @see in docblock
 // @TODO create tabindex in order of field creation? set honeypot = -1
 // @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
@@ -8,9 +8,6 @@
 
 
 namespace App\Controllers;
-
-// use DateTime;
-// use Exception;
 
 class Formbuilder {
 
@@ -58,6 +55,7 @@ class Formbuilder {
      */
 	// @TODO review input types
 	// https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/HTML5_input_types
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox
     // @TODO add switch type (like checkbox)
     // @TODO input groups?
     // @TODO button addons?
@@ -113,6 +111,7 @@ class Formbuilder {
 				break;
 
 			case 'submit':
+                // @TODO should submit button have a value? to test for submission? in html5?
                 $this->attr('class', 'btn');
 				break;
 
@@ -165,22 +164,6 @@ class Formbuilder {
         }
 
         $this->determineValue();
-
-
-        // else {
-		// 	// if editdata present, set it
-		// 	if($key == 'value' && isset($this->editdata[$this->currentfield])) {
-		// 		$this->form[$this->currentfield]['attr'][$key] = $this->editdata[$this->currentfield];
-
-        //         // @TODO if() for checkbox and radio; fix this!
-        //         if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-        //             $this->form[$this->currentfield]['attr']['checked'] = true;
-        //         }
-		// 	}
-		// 	else {
-		// 		
-		// 	}
-        // }
 
         return $this;
     }
@@ -429,12 +412,24 @@ class Formbuilder {
      * @see field()
      * @see attr()
      */
+    /*
+    @TODO 
+    if(editdata AND checkbox)
+    if(post AND checkbox)
+    if(get AND checkbox)
+    + else() statements?
+
+    */
     protected function determineValue() {
 		// if EDITDATA given, use it
 		if(isset($this->editdata[$this->currentfield])) {
 			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                // @TODO fix; include radio?
-				// $array['attr']['checked'] = true;
+                // @TODO include radio?
+                // @TODO if/else to toggle checkbox?
+                // $this->form[$this->currentfield]['attr']['checked'] = true;
+                // if value is present, mark as checked
+                // if value is NOT present, mark as unchecked
+                $this->form[$this->currentfield]['attr']['checked'] = true;
 			}
 			else {
 				$this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
@@ -444,25 +439,43 @@ class Formbuilder {
 		// if POST given, use it
 		if(isset($_POST[$this->currentfield])) {
 			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                // @TODO fix; include radio
-				// $array['attr']['checked'] = true;
+                // @TODO include radio?
+                // @TODO if/else to toggle checkbox?
+				// $this->form[$this->currentfield]['attr']['checked'] = true;
+                // if value is present, mark as checked
+                // if value is NOT present, mark as unchecked
+                $this->form[$this->currentfield]['attr']['checked'] = true;
 			}
 			else {
 				$this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
 			}
 		}
+        else {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+                $this->form[$this->currentfield]['attr']['checked'] = false;
+            }
+        }
 
 		// if GET given, use it
 		if(isset($_GET[$this->currentfield])) {
 			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                // @TODO fix; include radio
-				// $array['attr']['checked'] = true;
+                // @TODO include radio?
+                // @TODO if/else to toggle checkbox?
+				// $this->form[$this->currentfield]['attr']['checked'] = true;
+                // if value is present, mark as checked
+                // if value is NOT present, mark as unchecked
+                $this->form[$this->currentfield]['attr']['checked'] = true;
+
 			}
 			else {
 				$this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
 			}
 		}
     }
+
+
+
+
 
 
     // @TODO rename?

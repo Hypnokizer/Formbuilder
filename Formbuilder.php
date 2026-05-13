@@ -54,6 +54,7 @@ class Formbuilder {
      * set the field name to start the validation
      * @param string $name name of the field/key as on data to validate
      * @param string $alias optional alias to use on error messages instead of field name
+     * @see determineValue()
      */
 	// @TODO review input types
 	// https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/HTML5_input_types
@@ -130,9 +131,10 @@ class Formbuilder {
 		}
 
         // set editdata if present
-        if(isset($this->editdata[$this->currentfield])) {
-            $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
-        }
+        // @TODO replace with determineValue()
+        // if(isset($this->editdata[$this->currentfield])) {
+        //     $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
+        // }
         
 
         return $this;
@@ -151,6 +153,7 @@ class Formbuilder {
 
     /**
      * set form field attribute
+     * @see determineValue()
      */
     public function attr($key, $val) {
         // if class attribute, add to an array
@@ -158,19 +161,26 @@ class Formbuilder {
             $this->form[$this->currentfield]['attr'][$key][] = $val;
         }
         else {
-			// if editdata present, set it
-			if($key == 'value' && isset($this->editdata[$this->currentfield])) {
-				$this->form[$this->currentfield]['attr'][$key] = $this->editdata[$this->currentfield];
-
-                // @TODO if() for checkbox and radio; fix this!
-                if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                    $this->form[$this->currentfield]['attr']['checked'] = true;
-                }
-			}
-			else {
-				$this->form[$this->currentfield]['attr'][$key] = $val;
-			}
+            $this->form[$this->currentfield]['attr'][$key] = $val;
         }
+
+        $this->determineValue();
+
+
+        // else {
+		// 	// if editdata present, set it
+		// 	if($key == 'value' && isset($this->editdata[$this->currentfield])) {
+		// 		$this->form[$this->currentfield]['attr'][$key] = $this->editdata[$this->currentfield];
+
+        //         // @TODO if() for checkbox and radio; fix this!
+        //         if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+        //             $this->form[$this->currentfield]['attr']['checked'] = true;
+        //         }
+		// 	}
+		// 	else {
+		// 		
+		// 	}
+        // }
 
         return $this;
     }
@@ -202,8 +212,6 @@ class Formbuilder {
     public function show($name) {
 		// put the form element into a local variable
 		$info = $this->form[$name];
-
-		// determine value?
 
 		// echo form element based on type 
 		switch($info['attr']['type']) {
@@ -283,8 +291,6 @@ class Formbuilder {
 		// put the form element into a local variable
 		// $info = $this->elements[$name];
 
-		// determine value: edit/POST/GET/etc
-		// $info = $this->determineValue($info);
 
 		// use switch statement to echo form element based on type
 		// switch($info['attr']['type']) {
@@ -311,7 +317,6 @@ class Formbuilder {
 
 			// case 'radio':
 			// 	echo 'radio';
-			// 	// determineValue
 			// 	break;
 
 			// case 'reset':
@@ -322,7 +327,6 @@ class Formbuilder {
 
 		// 	case 'search':
 		// 		echo 'search';
-		// 		// determineValue?
 		// 		break;
 
 
@@ -421,47 +425,43 @@ class Formbuilder {
 
 
     // @TODO test radio, checkbox, etc
+    /**
+     * @see field()
+     * @see attr()
+     */
     protected function determineValue() {
-		// define type of form element as a shorthand
-		$type = $array['attr']['type'];
-
-		// start with value given in the ELEMENT array
-		$value = $array['attr']['value'];
-
-		// if EDIT given, use it
-		if(isset($this->editData[$array['attr']['name']])) {
-			if($type == 'checkbox') {
-				$array['attr']['checked'] = true;
+		// if EDITDATA given, use it
+		if(isset($this->editdata[$this->currentfield])) {
+			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+                // @TODO fix; include radio?
+				// $array['attr']['checked'] = true;
 			}
 			else {
-				$value = $this->editData[$array['attr']['name']];
+				$this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
 			}
 		}
 
 		// if POST given, use it
-		if(isset($_POST[$array['attr']['name']])) {
-			if($type == 'checkbox') {
-				$array['attr']['checked'] = true;
+		if(isset($_POST[$this->currentfield])) {
+			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+                // @TODO fix; include radio
+				// $array['attr']['checked'] = true;
 			}
 			else {
-				$value = $_POST[$array['attr']['name']];
+				$this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
 			}
 		}
 
 		// if GET given, use it
-		if(isset($_GET[$array['attr']['name']])) {
-			if($type == 'checkbox') {
-				$array['attr']['checked'] = true;
+		if(isset($_GET[$this->currentfield])) {
+			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+                // @TODO fix; include radio
+				// $array['attr']['checked'] = true;
 			}
 			else {
-				$value = $_GET[$array['attr']['name']];
+				$this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
 			}
 		}
-
-		// set the VALUE in the ELEMENTS array
-		$array['attr']['value'] = $value;
-
-		return $array;
     }
 
 

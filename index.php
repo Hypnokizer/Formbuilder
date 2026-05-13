@@ -21,7 +21,7 @@ $f = new formbuilder();
 
 
 $editdata = array(
-    'mycheck1' => 'yes'
+    'fname' => 'Edit Data'
 );
 
 $f->setEditData($editdata);
@@ -34,7 +34,7 @@ $f->setEditData($editdata);
 
 // $f->field('date', 'mydate', 'My Date');
 
-// $f->field('text', 'fname', 'First Name')
+$f->field('text', 'fname', 'First Name')->attr('value', 'Attr Data');
 //     ->attr('data-id', 3)
 //     ->attr('data-title', 'my data attr')
 //     ->attr('class', 'btn')
@@ -49,20 +49,35 @@ $f->setEditData($editdata);
 
 // $f->field('email', 'myemail', 'Email');
 
-$f->field('checkbox', 'mycheck1', 'My Check 1');
+// $f->field('checkbox', 'mycheck1', 'My Check 1');
 
+$f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 
 ?>
 
-<form method="post" action="" accept-charset="utf-8">
+<form method="get" action="" accept-charset="utf-8">
 
-<?php $f->show('mycheck1'); ?>
+<?php //$f->show('mycheck1'); ?>
+<?php $f->show('fname'); ?>
+<?php $f->show('submit'); ?>
 
 </form>
 
 
 
 <?php
+
+if($_POST) {
+    echo '<pre>POST: ';
+    print_r($_POST);
+    echo '</pre>';
+}
+
+if($_GET) {
+    echo '<pre>GET: ';
+    print_r($_GET);
+    echo '</pre>';
+}
 
 $f->showObject();
 

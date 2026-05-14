@@ -129,12 +129,8 @@ class Formbuilder {
 				$this->attr('class', 'form-control');
 		}
 
-        // set editdata if present
-        // @TODO replace with determineValue()
-        // if(isset($this->editdata[$this->currentfield])) {
-        //     $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
-        // }
-        
+        // set editdata if present       
+        $this->determineValue();
 
         return $this;
     }
@@ -420,58 +416,102 @@ class Formbuilder {
     + else() statements?
 
     */
-    protected function determineValue() {
-		// if EDITDATA given, use it
-		if(isset($this->editdata[$this->currentfield])) {
-			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                // @TODO include radio?
-                // @TODO if/else to toggle checkbox?
-                // $this->form[$this->currentfield]['attr']['checked'] = true;
-                // if value is present, mark as checked
-                // if value is NOT present, mark as unchecked
-                $this->form[$this->currentfield]['attr']['checked'] = true;
-			}
-			else {
-				$this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
-			}
-		}
 
-		// if POST given, use it
-		if(isset($_POST[$this->currentfield])) {
-			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                // @TODO include radio?
-                // @TODO if/else to toggle checkbox?
-				// $this->form[$this->currentfield]['attr']['checked'] = true;
-                // if value is present, mark as checked
-                // if value is NOT present, mark as unchecked
-                $this->form[$this->currentfield]['attr']['checked'] = true;
-			}
-			else {
-				$this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
-			}
-		}
-        else {
+    protected function determineValue() {
+        // $checkedstatus = false;
+        // @TODO use this variable and !$checkedstatus to toggle it?
+
+        // if EDITDATA exists use it
+        if($this->editdata && isset($this->editdata[$this->currentfield])) {
             if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                $this->form[$this->currentfield]['attr']['checked'] = false;
+                $this->form[$this->currentfield]['attr']['checked'] = true;
+            }
+            else {
+                // $this->form[$this->currentfield]['attr']['checked'] = false;
+                $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
             }
         }
 
-		// if GET given, use it
-		if(isset($_GET[$this->currentfield])) {
-			if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                // @TODO include radio?
-                // @TODO if/else to toggle checkbox?
-				// $this->form[$this->currentfield]['attr']['checked'] = true;
-                // if value is present, mark as checked
-                // if value is NOT present, mark as unchecked
+        // if POST exists use it
+        if($_POST && isset($_POST[$this->currentfield])) {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
                 $this->form[$this->currentfield]['attr']['checked'] = true;
+            }
+            else {
+                $this->form[$this->currentfield]['attr']['checked'] = false;
+                $this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
+            }
+        }
 
-			}
-			else {
-				$this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
-			}
-		}
+
+        // if GET exists use it
+        if($_GET && isset($_GET[$this->currentfield])) {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+                $this->form[$this->currentfield]['attr']['checked'] = true;
+            }
+            else {
+                $this->form[$this->currentfield]['attr']['checked'] = false;
+                $this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
+            }
+        }
+
     }
+
+
+
+
+    // protected function determineValue() {
+	// 	// if EDITDATA given, use it
+	// 	if(isset($this->editdata[$this->currentfield])) {
+	// 		if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+    //             // @TODO include radio?
+    //             // @TODO if/else to toggle checkbox?
+    //             // $this->form[$this->currentfield]['attr']['checked'] = true;
+    //             // if value is present, mark as checked
+    //             // if value is NOT present, mark as unchecked
+    //             $this->form[$this->currentfield]['attr']['checked'] = true;
+	// 		}
+	// 		else {
+	// 			$this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
+	// 		}
+	// 	}
+
+	// 	// if POST given, use it
+	// 	if(isset($_POST[$this->currentfield])) {
+	// 		if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+    //             // @TODO include radio?
+    //             // @TODO if/else to toggle checkbox?
+	// 			// $this->form[$this->currentfield]['attr']['checked'] = true;
+    //             // if value is present, mark as checked
+    //             // if value is NOT present, mark as unchecked
+    //             $this->form[$this->currentfield]['attr']['checked'] = true;
+	// 		}
+	// 		else {
+	// 			$this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
+	// 		}
+	// 	}
+    //     else {
+    //         if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+    //             $this->form[$this->currentfield]['attr']['checked'] = false;
+    //         }
+    //     }
+
+	// 	// if GET given, use it
+	// 	if(isset($_GET[$this->currentfield])) {
+	// 		if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+    //             // @TODO include radio?
+    //             // @TODO if/else to toggle checkbox?
+	// 			// $this->form[$this->currentfield]['attr']['checked'] = true;
+    //             // if value is present, mark as checked
+    //             // if value is NOT present, mark as unchecked
+    //             $this->form[$this->currentfield]['attr']['checked'] = true;
+
+	// 		}
+	// 		else {
+	// 			$this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
+	// 		}
+	// 	}
+    // }
 
 
 

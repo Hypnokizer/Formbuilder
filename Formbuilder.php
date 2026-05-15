@@ -30,6 +30,11 @@ class Formbuilder {
      */
     protected $editdata;
 
+    /**
+     * dummy data to capture unchecked status from 
+     * @TODO create method to set this value? set in construct()
+     */
+    protected $dummyvalue;
 
     /**
      * create new instance of validator class
@@ -41,6 +46,7 @@ class Formbuilder {
         $this->form = array();
         $this->currentfield = NULL;
         $this->editdata = array();
+        $this->dummyvalue = 'dummy';
     }
 
 
@@ -68,7 +74,9 @@ class Formbuilder {
 		// set default values
 		$this->form[$this->currentfield] = array(
 			'label' => $label,
-			'labelclass' => NULL,
+			'labelattr' => array(
+                'for' => $this->currentfield
+            ),
 			'attr' => array(
 				'type' => $type,
 				'id' => $name,
@@ -80,6 +88,7 @@ class Formbuilder {
 
         // @TODO switch for default settings for various form elements
         // @TODO fix setLabelClass for radio, checkbox, etc
+        // @TODO apply bootstrap5 classes to labels as needed
 		switch($type) {
 			case 'button':
                 $this->attr('class', 'btn');
@@ -142,6 +151,13 @@ class Formbuilder {
      * @TODO finish
      */
     public function labelAttr($key, $val) {
+        if($key == 'class') {
+            $this->form[$this->currentfield]['labelattr'][$key][] = $val;
+        }
+        else {
+            $this->form[$this->currentfield]['labelattr'][$key] = $val;
+        }
+
         return $this;
     }
 
@@ -200,8 +216,11 @@ class Formbuilder {
 				$string .= '</button>';
 				break;
 
+            // add hidden input with same name to capture unchecked form submissions
+            // @TODO add "checkbox" prefix to dummyvalue to differentiate from radio buttons?
 			case 'checkbox':
-				$string = '<div class="form-check">';
+                $string = '<input type="hidden" name="' . $name . '" value="' . $this->dummyvalue . '" />';
+				$string .= '<div class="form-check">';
 				$string .= '<input' . $this->createAttributes($info) . ' />';
 				$string .= $this->createLabel($info);
 				$string .= '</div>';
@@ -383,23 +402,31 @@ class Formbuilder {
 	/**
 	 * @TODO refine and finish
 	 * @TODO "label" uses array?
+     * @TODO research form label attribute options
+     * @TODO test labels for radio, checkboxes, etc
 	 */
     protected function createLabel($array) {
-		if(!empty($array['label'])) {
-			// start label string
-			$string = '<label for="' . $array['attr']['id'] . '"';
+        if(!empty($array['label'])) {
+            $string = '<label ';
 
-			if(!empty($array['labelclass'])) {
-				$string .= ' class="' . $array['labelclass'] . '"';
-			}
+            if(!empty($array['labelattr'])) {
+                foreach($array['labelattr'] as $key => $val) {
+                    if($key == 'class') {
+                        $classes = implode(' ', $val);
+                        $string .= 'class="' . $classes . '"';
+                    }
+                    else {
+                        $string .= $key . '="' . $val . '"';
+                    }
+                }
+            }
 
-			$string .= '>' . $array['label'] . '</label>';
-
-			return $string;
-		}
-		else {
-			return NULL;
-		}
+            $string .= '>' . $array['label'] . '</label>';
+            return $string;
+        }
+        else {
+            return NULL;
+        }
     }
 
 
@@ -408,118 +435,64 @@ class Formbuilder {
      * @see field()
      * @see attr()
      */
-    /*
-    @TODO 
-    if(editdata AND checkbox)
-    if(post AND checkbox)
-    if(get AND checkbox)
-    + else() statements?
-
-    */
-
     protected function determineValue() {
-        // $checkedstatus = false;
-        // @TODO use this variable and !$checkedstatus to toggle it?
-
         // if EDITDATA exists use it
-        if($this->editdata && isset($this->editdata[$this->currentfield])) {
+        if(isset($this->editdata[$this->currentfield])) {
             if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                $this->form[$this->currentfield]['attr']['checked'] = true;
+                if($this->form[$this->currentfield]['attr']['value'] == $this->editdata[$this->currentfield]) {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
+                else {
+                    $this->form[$this->currentfield]['attr']['checked'] = false;
+                }
             }
             else {
-                // $this->form[$this->currentfield]['attr']['checked'] = false;
                 $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
             }
         }
 
         // if POST exists use it
-        if($_POST && isset($_POST[$this->currentfield])) {
+        if(isset($_POST[$this->currentfield])) {
             if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                $this->form[$this->currentfield]['attr']['checked'] = true;
+                if($this->form[$this->currentfield]['attr']['value'] == $_POST[$this->currentfield]) {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
+                else {
+                    $this->form[$this->currentfield]['attr']['checked'] = false;
+                }
             }
             else {
-                $this->form[$this->currentfield]['attr']['checked'] = false;
                 $this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
             }
         }
 
-
         // if GET exists use it
-        if($_GET && isset($_GET[$this->currentfield])) {
+        if(isset($_GET[$this->currentfield])) {
             if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-                $this->form[$this->currentfield]['attr']['checked'] = true;
+                if($this->form[$this->currentfield]['attr']['value'] == $_GET[$this->currentfield]) {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
+                else {
+                    $this->form[$this->currentfield]['attr']['checked'] = false;
+                }
             }
             else {
-                $this->form[$this->currentfield]['attr']['checked'] = false;
                 $this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
             }
         }
-
     }
 
 
 
 
-    // protected function determineValue() {
-	// 	// if EDITDATA given, use it
-	// 	if(isset($this->editdata[$this->currentfield])) {
-	// 		if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-    //             // @TODO include radio?
-    //             // @TODO if/else to toggle checkbox?
-    //             // $this->form[$this->currentfield]['attr']['checked'] = true;
-    //             // if value is present, mark as checked
-    //             // if value is NOT present, mark as unchecked
-    //             $this->form[$this->currentfield]['attr']['checked'] = true;
-	// 		}
-	// 		else {
-	// 			$this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
-	// 		}
-	// 	}
-
-	// 	// if POST given, use it
-	// 	if(isset($_POST[$this->currentfield])) {
-	// 		if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-    //             // @TODO include radio?
-    //             // @TODO if/else to toggle checkbox?
-	// 			// $this->form[$this->currentfield]['attr']['checked'] = true;
-    //             // if value is present, mark as checked
-    //             // if value is NOT present, mark as unchecked
-    //             $this->form[$this->currentfield]['attr']['checked'] = true;
-	// 		}
-	// 		else {
-	// 			$this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
-	// 		}
-	// 	}
-    //     else {
-    //         if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-    //             $this->form[$this->currentfield]['attr']['checked'] = false;
-    //         }
-    //     }
-
-	// 	// if GET given, use it
-	// 	if(isset($_GET[$this->currentfield])) {
-	// 		if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
-    //             // @TODO include radio?
-    //             // @TODO if/else to toggle checkbox?
-	// 			// $this->form[$this->currentfield]['attr']['checked'] = true;
-    //             // if value is present, mark as checked
-    //             // if value is NOT present, mark as unchecked
-    //             $this->form[$this->currentfield]['attr']['checked'] = true;
-
-	// 		}
-	// 		else {
-	// 			$this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
-	// 		}
-	// 	}
-    // }
 
 
 
 
 
 
-    // @TODO rename?
-    // @TODO do I set editData array? or just form data values? I have to use the editdata in the show() method so it does not get overwritten! this is done in the determineValue() method
+
+    // @TODO docblock
     // uses associative array from database, etc to populate form
     public function setEditData($data) {
         $this->editdata = $data;

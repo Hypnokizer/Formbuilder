@@ -5,6 +5,7 @@
 // @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
 // @TODO simple foreach() to show all form elements quickly?
+// @TODO create method for using floating forms or they basic BS5 format
 
 
 namespace App\Controllers;
@@ -148,7 +149,6 @@ class Formbuilder {
 
     /**
      * set label attributes 
-     * @TODO finish
      */
     public function labelAttr($key, $val) {
         if($key == 'class') {
@@ -226,6 +226,7 @@ class Formbuilder {
 				$string .= '</div>';
 				break;
 
+			// @TODO finish
 			case 'radio':
 				$string = 'radio';
 				break;
@@ -258,6 +259,7 @@ class Formbuilder {
 				$string .= '</select>';
 				break;
 
+			// @TODO finish
             case 'state':
                 $string = 'state dropdown';
                 break;
@@ -282,52 +284,6 @@ class Formbuilder {
 		}
 
 		echo $string;
-
-
-
-        // display the form element
-		// put the form element into a local variable
-		// $info = $this->elements[$name];
-
-
-		// use switch statement to echo form element based on type
-		// switch($info['attr']['type']) {
-		// 	case 'button':
-		// 		$string = '<button' . $this->createAttributes($info) . '>';
-		// 		$string .= $info['label'];
-		// 		$string .= '</button>';
-		// 		break;
-
-			// case 'captcha':
-			// 	echo 'captcha';
-			// 	break;
-
-			// case 'checkbox':
-			// 	$string = '<div class="form-check">';
-			// 	$string .= '<input' . $this->createAttributes($info) . ' />';
-			// 	$string .= $this->createLabel($info);
-			// 	$string .= '</div>';
-			// 	break;
-
-			// case 'hidden':
-			// 	$string = '<input' . $this->createAttributes($info) . ' />';
-			// 	break;
-
-			// case 'radio':
-			// 	echo 'radio';
-			// 	break;
-
-			// case 'reset':
-			// 	$string = '<button' . $this->createAttributes($info) . '>';
-			// 	$string .= $info['label'];
-			// 	$string .= '</button>';
-			// 	break;
-
-		// 	case 'search':
-		// 		echo 'search';
-		// 		break;
-
-
     }
 
 

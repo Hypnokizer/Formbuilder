@@ -19,12 +19,13 @@ $f = new formbuilder();
 $editvalue = array();
 $editdata['name'] = 'Nathan Kizer';
 $editdata['mycheck1'] = 'actualvalue';
+$editdata['myradio'] = 'two';
 
 $f->setEditData($editdata);
 
 
 // $choices = array('one' => 'One', 'two' => 'Two');
-// $f->field('select', 'pickone', 'Pick One')->choices($choices)->attr('placeholder', 'mytext');
+// $f->field('select', 'pickone', 'Pick One')->choices($choices)->attr('placeholder', 'My placeholder text');
 
 $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label');
 
@@ -37,7 +38,7 @@ $radio = array(
     'three' => 'Three'
 );
 
-$f->field('radio', 'myradio', 'Radio 1');
+$f->field('radio', 'myradio', 'Radio 1')->choices($radio);
 
 $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 
@@ -47,7 +48,6 @@ $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 
 <?php $f->show('name'); ?>
 <?php //$f->show('mycheck1'); ?>
-
 <?php $f->show('myradio'); ?>
 
 

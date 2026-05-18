@@ -53,7 +53,7 @@ class Formbuilder {
         $this->currentfield = NULL;
         $this->editdata = array();
         $this->dummyvalue = 'dummy';
-        $this->dummychoices = array('one' => 'One', 'two' => 'Two');
+        $this->dummychoices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three'); // @TODO change to yes/no or something useful by default?
     }
 
 
@@ -436,6 +436,14 @@ class Formbuilder {
                     $this->form[$this->currentfield]['attr']['checked'] = false;
                 }
             }
+            // elseif($this->form[$this->currentfield]['attr']['type'] == 'radio') {
+            //     if($this->form[$this->currentfield]['attr']['value'] == $this->editdata[$this->currentfield]) {
+            //         $this->form[$this->currentfield]['attr']['checked'] = true;
+            //     }
+            //     else {
+            //         $this->form[$this->currentfield]['attr']['checked'] = false;
+            //     }
+            // }
             else {
                 $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
             }

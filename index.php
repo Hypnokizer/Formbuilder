@@ -15,6 +15,7 @@ use App\Controllers\Formbuilder;
 
 $f = new formbuilder();
 
+$f->formAttr('id', 'formValidate')->formAttr('class', 'test2');
 
 $editvalue = array();
 $editdata['name'] = 'Nathan Kizer';
@@ -25,12 +26,15 @@ $editdata['mytextarea'] = 'this is some text';
 $f->setEditData($editdata);
 
 
-// $choices = array('one' => 'One', 'two' => 'Two');
-// $f->field('select', 'pickone', 'Pick One')->choices($choices)->attr('placeholder', 'My placeholder text');
+
 
 $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label');
 
-// $f->field('textarea', 'mytextarea', 'My Textarea');
+// $choices = array('one' => 'One', 'two' => 'Two');
+// $f->field('select', 'pickone', 'Pick One')->choices($choices)->attr('placeholder', 'My placeholder text');
+
+
+$f->field('textarea', 'mytextarea', 'My Textarea');
 
 // $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
 
@@ -47,20 +51,11 @@ $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', '
 
 $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 
-?>
-
-<form method="post" action="" accept-charset="utf-8">
-
-<?php $f->show('name'); ?>
-
-
-<?php $f->show('submit'); ?>
-
-</form>
 
 
 
-<?php
+$f->showForm();
+
 
 if($_POST) {
     echo '<pre>POST: ';

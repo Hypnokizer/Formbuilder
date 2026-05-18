@@ -20,6 +20,14 @@ class Formbuilder {
     protected $form;
 
     /**
+     * master array of form attributes
+     * @access protected;
+     * @var array
+     * @see formAttr()
+     */
+    protected $formattr;
+
+    /**
      * currently selected key/field to validate data
      * @access protected
      * @var string
@@ -50,14 +58,24 @@ class Formbuilder {
     public function __CONSTRUCT() {
 
         $this->form = array();
+        $this->formattr = array(
+            'action' => NULL,
+            'method' => 'post',
+            'accept-charset' => 'utf-8'
+        );
         $this->currentfield = NULL;
         $this->editdata = array();
         $this->dummyvalue = 'dummy';
         $this->dummychoices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three'); // @TODO change to yes/no or something useful by default?
     }
 
-
-
+    /*
+    @TODO
+    attributes: action, method, autocomplete, novalidate, target, enctype
+    enctype = application/x-www-form-urlencoded
+    markup = html 
+    novalidate = false
+    */
 
 
     /**
@@ -484,6 +502,66 @@ class Formbuilder {
 
 
 
+
+
+    /**
+     * render form
+     * @TODO review
+     */
+
+    public function showForm() {
+        // create form attributes from array
+        $attributes = NULL;
+
+        // create string from classes
+        $this->formattr['class'] = implode(' ', $this->formattr['class']);
+
+        // create attribute string
+        foreach($this->formattr as $key => $val) {
+            if(is_bool($val) && $val == true) {
+                $attributes .= ' ' . $key;
+            }
+            else {
+                $attributes .= ' ' . $key . '="' . htmlentities((string)$val, ENT_QUOTES) . '"';
+            }
+        }
+        
+        echo '<form ' . $attributes . '>';
+
+        foreach($this->form as $key => $val) {
+            echo '<div class="mb-3">';
+            $this->show($key);
+            echo '</div>';
+        }
+
+        echo '</form>';
+    }
+
+
+    /*
+    @TODO
+    attributes: action, method, autocomplete, novalidate, target, enctype
+
+    enctype = application/x-www-form-urlencoded
+    novalidate = false
+    */
+
+
+    /**
+     * add attributes to the form 
+     * @TODO review
+     */
+    public function formAttr($key, $val) {
+        // if class attribute, add to an array
+        if($key == 'class') {
+            $this->formattr[$key][] = $val;
+        }
+        else {
+            $this->formattr[$key] = $val;
+        }
+
+        return $this;
+    }
 
 
 

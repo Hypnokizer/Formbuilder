@@ -211,14 +211,11 @@ class Formbuilder {
      * @TODO revise and finish
      */
     public function show($name) {
-		// put the form element into a local variable
-		$info = $this->form[$name];
-
 		// echo form element based on type 
-		switch($info['attr']['type']) {
+		switch($this->form[$name]['attr']['type']) { 
 			case 'button':
-				$string = '<button' . $this->createAttributes($info) . '>';
-				$string .= $info['label'];
+				$string = '<button' . $this->createAttributes($this->form[$name]) . '>';
+				$string .= $this->form[$name]['label'];
 				$string .= '</button>';
 				break;
 
@@ -227,33 +224,36 @@ class Formbuilder {
 			case 'checkbox':
                 $string = '<input type="hidden" name="' . $name . '" value="' . $this->dummyvalue . '" />';
 				$string .= '<div class="form-check">';
-				$string .= '<input' . $this->createAttributes($info) . ' />';
-				$string .= $this->createLabel($info);
+				$string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
+				$string .= $this->createLabel($this->form[$name]);
 				$string .= '</div>';
 				break;
 
+            // @TODO set default value?
+            // @TODO set "checked"
+            // @TODO determineValue()
 			case 'radio':
                 $string = NULL;
                 $counter = 1;
-                $firstkey = array_key_first($info['choices']);
+                $firstkey = array_key_first($this->form[$name]['choices']);
 
-                foreach($info['choices'] as $key => $val) {
+                foreach($this->form[$name]['choices'] as $key => $val) {
                     // set default selection
                     if($key == $firstkey) {
-                        $info['attr']['checked'] = true;
+                        $this->form[$name]['attr']['checked'] = true;
                     }
                     else {
-                        $info['attr']['checked'] = false;
+                        $this->form[$name]['attr']['checked'] = false;
                     }
 
-                    $info['attr']['value'] = $key; // define choice for each radio button 
-                    $info['attr']['id'] = $info['attr']['name'] . $counter; // unique ID to each radio button
-                    $info['label'] = $val; // define label for each radio button
-                    $info['labelattr']['for'] = $info['attr']['name'] . $counter;
+                    $this->form[$name]['attr']['value'] = $key; // define choice for each radio button 
+                    $this->form[$name]['attr']['id'] = $this->form[$name]['attr']['name'] . $counter; // unique ID to each radio button
+                    $this->form[$name]['label'] = $val; // define label for each radio button
+                    $this->form[$name]['labelattr']['for'] = $this->form[$name]['attr']['name'] . $counter;
 
                     $string .= '<div class="form-check">';
-                    $string .= '<input' . $this->createAttributes($info) . ' />';
-                    $string .= $this->createLabel($info);
+                    $string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
+                    $string .= $this->createLabel($this->form[$name]);
                     $string .= '</div>';
 
                     $counter++;
@@ -261,25 +261,25 @@ class Formbuilder {
 				break;
 
 			case 'reset':
-				$string = '<button' . $this->createAttributes($info) . '>';
-				$string .= $info['label'];
+				$string = '<button' . $this->createAttributes($this->form[$name]) . '>';
+				$string .= $this->form[$name]['label'];
 				$string .= '</button>';
 				break;
 
 			case 'select':
-				$string = $this->createLabel($info);
-				$string .= '<select' . $this->createAttributes($info) . '>';
+				$string = $this->createLabel($this->form[$name]);
+				$string .= '<select' . $this->createAttributes($this->form[$name]) . '>';
 				// create placeholder if present, else show empty option
-				if(isset($info['attr']['placeholder'])) {
-					$string .= '<option disabled selected>' . $info['attr']['placeholder'] . '</option>';
+				if(isset($this->form[$name]['attr']['placeholder'])) {
+					$string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
 				}
 				else {
 					$string .= '<option value=""></option>';
 				}
-				foreach($info['choices'] as $key => $val) {
+				foreach($this->form[$name]['choices'] as $key => $val) {
 					$string .= '<option value="' . $key . '"';
 
-					if($key == $info['attr']['value']) {
+					if($key == $this->form[$name]['attr']['value']) {
 						$string .= ' selected';
 					}
 
@@ -294,21 +294,21 @@ class Formbuilder {
                 break;
 
 			case 'submit':
-				$string = '<button' . $this->createAttributes($info) . '>';
-				$string .= $info['label'];
+				$string = '<button' . $this->createAttributes($this->form[$name]) . '>';
+				$string .= $this->form[$name]['label'];
 				$string .= '</button>';
 				break;
 
 			case 'textarea':
-				$string = $this->createLabel($info);
-				$string .= '<textarea' . $this->createAttributes($info) . '>';
-				$string .= $info['attr']['value'];
+				$string = $this->createLabel($this->form[$name]);
+				$string .= '<textarea' . $this->createAttributes($this->form[$name]) . '>';
+				$string .= $this->form[$name]['attr']['value'];
 				$string .= '</textarea>';
 				break;
 
 			default:
-				$string = $this->createLabel($info);
-				$string .= '<input' . $this->createAttributes($info) . ' />';
+				$string = $this->createLabel($this->form[$name]);
+				$string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
 
 		}
 

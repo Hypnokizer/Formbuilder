@@ -20,6 +20,7 @@ $editvalue = array();
 $editdata['name'] = 'Nathan Kizer';
 $editdata['mycheck1'] = 'actualvalue';
 $editdata['myradio'] = 'two';
+$editdata['mytextarea'] = 'this is some text';
 
 $f->setEditData($editdata);
 
@@ -29,16 +30,20 @@ $f->setEditData($editdata);
 
 $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label');
 
+// $f->field('textarea', 'mytextarea', 'My Textarea');
+
 // $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
 
 
-$radio = array(
-    'one' => 'One',
-    'two' => 'Two',
-    'three' => 'Three'
-);
+// $radio = array(
+//     'one' => 'One',
+//     'two' => 'Two',
+//     'three' => 'Three'
+// );
 
-$f->field('radio', 'myradio', 'Radio 1')->choices($radio);
+// $f->field('radio', 'myradio', 'Radio 1')->choices($radio);
+
+
 
 $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 
@@ -47,8 +52,6 @@ $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 <form method="post" action="" accept-charset="utf-8">
 
 <?php $f->show('name'); ?>
-<?php //$f->show('mycheck1'); ?>
-<?php $f->show('myradio'); ?>
 
 
 <?php $f->show('submit'); ?>

@@ -23,20 +23,20 @@ $editdata['mycheck1'] = 'actualvalue';
 $editdata['myradio'] = 'two';
 $editdata['mytextarea'] = 'this is some text';
 
-$f->setEditData($editdata);
+// $f->setEditData($editdata);
 
 
 
 
 $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label');
 
-// $choices = array('one' => 'One', 'two' => 'Two');
-// $f->field('select', 'pickone', 'Pick One')->choices($choices)->attr('placeholder', 'My placeholder text');
+$choices = array('one' => 'One', 'two' => 'Two');
+$f->field('select', 'pickone', 'Pick One')->choices($choices);
 
 
 $f->field('textarea', 'mytextarea', 'My Textarea');
 
-// $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
+$f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
 
 
 // $radio = array(

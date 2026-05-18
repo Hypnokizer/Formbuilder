@@ -4,7 +4,6 @@
 // @TODO create tabindex in order of field creation? set honeypot = -1
 // @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
-// @TODO simple foreach() to show all form elements quickly?
 // @TODO create method for using floating forms or they basic BS5 format
 
 
@@ -71,7 +70,7 @@ class Formbuilder {
 
     /*
     @TODO
-    attributes: action, method, autocomplete, novalidate, target, enctype
+    form attributes: action, method, autocomplete, novalidate, target, enctype
     enctype = application/x-www-form-urlencoded
     markup = html 
     novalidate = false
@@ -85,8 +84,6 @@ class Formbuilder {
      * @see determineValue()
      */
 	// @TODO review input types
-	// https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/HTML5_input_types
-    // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/checkbox
     // @TODO add switch type (like checkbox)
     // @TODO input groups?
     // @TODO button addons?
@@ -114,6 +111,8 @@ class Formbuilder {
         // @TODO switch for default settings for various form elements
         // @TODO fix setLabelClass for radio, checkbox, etc
         // @TODO apply bootstrap5 classes to labels as needed
+        // @TODO create datalists with LIST, ID, CLASS attributes?
+        // @TODO make select label the first option, but without value attr?
 		switch($type) {
 			case 'button':
                 $this->attr('class', 'btn');
@@ -136,12 +135,12 @@ class Formbuilder {
 				break;
 
 			case 'select':
-                $this->attr('class', 'form-select')->choices($this->dummychoices);
+                $this->labelAttr('class', 'form-label')->attr('class', 'form-select')->choices($this->dummychoices)->attr('placeholder', $label);
 				break;
 
 			case 'state':
                 // @TODO maybe make this a select with state abbreviations?
-                $this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', '2 letter abbreviation');
+                $this->labelAttr('class', 'form-label')->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', '2 letter abbreviation');
 				break;
 
 			case 'submit':
@@ -150,17 +149,17 @@ class Formbuilder {
 				break;
 
 			case 'textarea':
-				$this->attr('class', 'form-control');
+				$this->labelAttr('class', 'form-label')->attr('class', 'form-control')->attr('placeholder', $label);
 				break;
 
             // @TODO needed?
 			case 'zip':
-				$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Standard or zip+4 format');
+				$this->labelAttr('class', 'form-label')->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Standard or zip+4 format');
 				break;
 
             // basic text input
 			default:
-				$this->attr('class', 'form-control');
+				$this->labelAttr('class', 'form-label')->attr('class', 'form-control')->attr('placeholder', $label);
 		}
 
         // set editdata if present       
@@ -285,27 +284,29 @@ class Formbuilder {
 				break;
 
 			case 'select':
-				$string = $this->createLabel($this->form[$name]);
-				$string .= '<select' . $this->createAttributes($this->form[$name]) . '>';
+                
+				$string = '<select' . $this->createAttributes($this->form[$name]) . '>';
 				// create placeholder if present, else show empty option
 				if(isset($this->form[$name]['attr']['placeholder'])) {
-					$string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
-				}
-				else {
-					$string .= '<option value=""></option>';
-				}
-				foreach($this->form[$name]['choices'] as $key => $val) {
-					$string .= '<option value="' . $key . '"';
+                    $string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
+                }
+                else {
+                        $string .= '<option value=""></option>';
+                }
 
-					if($key == $this->form[$name]['attr']['value']) {
-						$string .= ' selected';
-					}
-
-					$string .= '>' . $val . '</option>';
-				}
-				$string .= '</select>';
-				break;
-
+                foreach($this->form[$name]['choices'] as $key => $val) {
+                    $string .= '<option value="' . $key . '"';
+                    
+                    if($key == $this->form[$name]['attr']['value']) {
+                        $string .= ' selected';
+                    }
+                        
+                    $string .= '>' . $val . '</option>';
+                }
+                $string .= '</select>';
+                $string .= $this->createLabel($this->form[$name]);
+                break;
+                                
 			// @TODO finish
             case 'state':
                 $string = 'state dropdown';
@@ -318,15 +319,15 @@ class Formbuilder {
 				break;
 
 			case 'textarea':
-				$string = $this->createLabel($this->form[$name]);
-				$string .= '<textarea' . $this->createAttributes($this->form[$name]) . '>';
+				$string = '<textarea' . $this->createAttributes($this->form[$name]) . '>';
 				$string .= $this->form[$name]['attr']['value'];
 				$string .= '</textarea>';
+				$string .= $this->createLabel($this->form[$name]);
 				break;
 
 			default:
-				$string = $this->createLabel($this->form[$name]);
-				$string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
+                $string = '<input' . $this->createAttributes($this->form[$name]) . ' />';
+				$string .= $this->createLabel($this->form[$name]);
 
 		}
 
@@ -407,8 +408,6 @@ class Formbuilder {
 
 
 	/**
-	 * @TODO refine and finish
-	 * @TODO "label" uses array?
      * @TODO research form label attribute options
      * @TODO test labels for radio, checkboxes, etc
 	 */
@@ -437,7 +436,7 @@ class Formbuilder {
     }
 
 
-    // @TODO test radio, checkbox, etc
+    // @TODO test radio
     // @TODO add logic for radio buttons
     /**
      * @see field()
@@ -529,7 +528,7 @@ class Formbuilder {
         echo '<form ' . $attributes . '>';
 
         foreach($this->form as $key => $val) {
-            echo '<div class="mb-3">';
+            echo '<div class="form-floating mb-3">';
             $this->show($key);
             echo '</div>';
         }

@@ -38,6 +38,11 @@ class Formbuilder {
     protected $dummyvalue;
 
     /**
+     * dummy data for elements requiring options (SELECT, RADIO)
+     */
+    protected $dummychoices;
+
+    /**
      * create new instance of validator class
      * @param array $data data to validate
      * @return object Validator
@@ -48,6 +53,7 @@ class Formbuilder {
         $this->currentfield = NULL;
         $this->editdata = array();
         $this->dummyvalue = 'dummy';
+        $this->dummychoices = array('one' => 'One', 'two' => 'Two');
     }
 
 
@@ -96,7 +102,7 @@ class Formbuilder {
 				break;
 
 			case 'checkbox':
-                $this->attr('class', 'form-check-input')->attr('value', 'yes')->attr('checked', false);
+                $this->labelAttr('class', 'form-check-label')->attr('class', 'form-check-input')->attr('value', 'yes')->attr('checked', false);
 				break;
 
 			// case 'date':
@@ -104,7 +110,7 @@ class Formbuilder {
 			// 	break;
 
 			case 'radio':
-                $this->attr('class', 'form-check-input');
+                $this->labelAttr('class', 'form-check-label')->attr('class', 'form-check-input')->choices($this->dummychoices);
 				break;
 
 			case 'reset':
@@ -112,7 +118,7 @@ class Formbuilder {
 				break;
 
 			case 'select':
-                $this->attr('class', 'form-select');
+                $this->attr('class', 'form-select')->choices($this->dummychoices);
 				break;
 
 			case 'state':
@@ -226,9 +232,32 @@ class Formbuilder {
 				$string .= '</div>';
 				break;
 
-			// @TODO finish
 			case 'radio':
-				$string = 'radio';
+                $string = NULL;
+                $counter = 1;
+                $firstkey = array_key_first($info['choices']);
+
+                foreach($info['choices'] as $key => $val) {
+                    // set default selection
+                    if($key == $firstkey) {
+                        $info['attr']['checked'] = true;
+                    }
+                    else {
+                        $info['attr']['checked'] = false;
+                    }
+
+                    $info['attr']['value'] = $key; // define choice for each radio button 
+                    $info['attr']['id'] = $info['attr']['name'] . $counter; // unique ID to each radio button
+                    $info['label'] = $val; // define label for each radio button
+                    $info['labelattr']['for'] = $info['attr']['name'] . $counter;
+
+                    $string .= '<div class="form-check">';
+                    $string .= '<input' . $this->createAttributes($info) . ' />';
+                    $string .= $this->createLabel($info);
+                    $string .= '</div>';
+
+                    $counter++;
+                }
 				break;
 
 			case 'reset':
@@ -315,8 +344,12 @@ class Formbuilder {
 				$notused = array('placeholder');
 				break;
 
+            // @TODO allow "checked" attribute?
+            // @TODO set default checked? how?
+            // @TODO allow "disabled"?
+            // @TODO review NOTUSED values...
 			case 'radio':
-				$notused = array('id', 'disabled', 'checked', 'value', 'placeholder', 'autofocus');
+				$notused = array('autofocus', 'placeholder');
 				break;
 
 			case 'select':
@@ -387,6 +420,7 @@ class Formbuilder {
 
 
     // @TODO test radio, checkbox, etc
+    // @TODO add logic for radio buttons
     /**
      * @see field()
      * @see attr()

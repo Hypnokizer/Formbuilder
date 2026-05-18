@@ -26,9 +26,18 @@ $f->setEditData($editdata);
 // $choices = array('one' => 'One', 'two' => 'Two');
 // $f->field('select', 'pickone', 'Pick One')->choices($choices)->attr('placeholder', 'mytext');
 
-$f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->labelAttr('class', 'customselector');
+$f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label');
 
-$f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
+// $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
+
+
+$radio = array(
+    'one' => 'One',
+    'two' => 'Two',
+    'three' => 'Three'
+);
+
+$f->field('radio', 'myradio', 'Radio 1');
 
 $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 
@@ -37,7 +46,11 @@ $f->field('submit', 'submit', 'Submit')->attr('class', 'btn-success');
 <form method="post" action="" accept-charset="utf-8">
 
 <?php $f->show('name'); ?>
-<?php $f->show('mycheck1'); ?>
+<?php //$f->show('mycheck1'); ?>
+
+<?php $f->show('myradio'); ?>
+
+
 <?php $f->show('submit'); ?>
 
 </form>

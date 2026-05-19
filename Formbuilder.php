@@ -4,10 +4,6 @@
 // @TODO create tabindex in order of field creation? set honeypot = -1
 // @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
-// @TODO create method for using floating forms or they basic BS5 format
-    // set value for property ($formtype = 'floating')
-    // if() statement in show() and showForm() that changes order of input and label
-    // floating = text, textarea, select; requires placeholder
 
 
 namespace App\Controllers;
@@ -622,7 +618,6 @@ class Formbuilder {
 
     /**
      * add attributes to the form 
-     * @TODO review
      */
     public function formAttr($key, $val) {
         // if class attribute, add to an array

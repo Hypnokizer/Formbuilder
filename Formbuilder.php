@@ -92,7 +92,6 @@ class Formbuilder {
 		// set the master key
 		$this->currentfield = $name;
 
-        // @TODO create default dummy choices for select, radio?
 		// set default values
 		$this->form[$this->currentfield] = array(
 			'label' => $label,
@@ -135,12 +134,23 @@ class Formbuilder {
 				break;
 
 			case 'select':
-                $this->labelAttr('class', 'form-label')->attr('class', 'form-select')->choices($this->dummychoices)->attr('placeholder', $label);
+                $this->labelAttr('class', 'form-label')->attr('class', 'form-select')->choices($this->dummychoices);
 				break;
 
 			case 'state':
-                // @TODO maybe make this a select with state abbreviations?
-                $this->labelAttr('class', 'form-label')->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', '2 letter abbreviation');
+                $states = array(
+                    'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL',
+                    'GA','HI','ID','IL','IN','IA','KS','KY','LA','ME',
+                    'MD','MA','MI','MN','MS','MO','MT','NE','NV','NH',
+                    'NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI',
+                    'SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY');
+                
+                $choices = array();
+                foreach($states as $state) {
+                    $choices[$state] = $state;
+                }
+
+                $this->labelAttr('class', 'form-label')->attr('type', 'select')->attr('class', 'form-select')->choices($choices);
 				break;
 
 			case 'submit':
@@ -283,8 +293,7 @@ class Formbuilder {
 				$string .= '</button>';
 				break;
 
-			case 'select':
-                
+			case 'select':    
 				$string = '<select' . $this->createAttributes($this->form[$name]) . '>';
 				// create placeholder if present, else show empty option
 				if(isset($this->form[$name]['attr']['placeholder'])) {

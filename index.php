@@ -38,6 +38,9 @@ $f->field('textarea', 'mytextarea', 'My Textarea');
 
 $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
 
+$f->field('state', 'mystate', 'State')->attr('value', 'TX');
+$f->field('zip', 'myzip', 'Zip');
+
 
 // $radio = array(
 //     'one' => 'One',

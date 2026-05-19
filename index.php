@@ -15,7 +15,7 @@ use App\Controllers\Formbuilder;
 
 $f = new formbuilder();
 
-$f->formAttr('id', 'formValidate')->formAttr('class', 'test2');
+$f->formAttr('id', 'formValidate')->formAttr('class', 'test2')->formAttr('autocomplete', 'off');
 
 $editvalue = array();
 $editdata['name'] = 'Nathan Kizer';
@@ -28,17 +28,21 @@ $editdata['mytextarea'] = 'this is some text';
 
 
 
-$f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label');
+$f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->attr('list', 'namelist');
+
+$f->datalist('namelist', array('nate', 'annie', 'daniel', 'david'));
+
+
 
 $choices = array('one' => 'One', 'two' => 'Two');
 $f->field('select', 'pickone', 'Pick One')->choices($choices);
 
 
-$f->field('textarea', 'mytextarea', 'My Textarea');
+$f->field('textarea', 'mytextarea', 'My Textarea')->attr('rows', 5);
 
 $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
 
-$f->field('state', 'mystate', 'State')->attr('value', 'TX');
+$f->field('state', 'mystate', 'State');
 $f->field('zip', 'myzip', 'Zip');
 
 

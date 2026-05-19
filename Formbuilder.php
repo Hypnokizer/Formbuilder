@@ -5,6 +5,9 @@
 // @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
 // @TODO create method for using floating forms or they basic BS5 format
+    // set value for property ($formtype = 'floating')
+    // if() statement in show() and showForm() that changes order of input and label
+    // floating = text, textarea, select; requires placeholder
 
 
 namespace App\Controllers;
@@ -13,18 +16,25 @@ class Formbuilder {
 
     /**
      * master array of form details
-     * @access protected;
+     * @access protected
      * @var array
      */
     protected $form;
 
     /**
      * master array of form attributes
-     * @access protected;
+     * @access protected
      * @var array
      * @see formAttr()
      */
     protected $formattr;
+
+    /**
+     * determines type of form to be displayed: normal/floating
+     * @access protected
+     * @var string
+     */
+    protected $formtype;
 
     /**
      * currently selected key/field to validate data
@@ -54,7 +64,7 @@ class Formbuilder {
      * @param array $data data to validate
      * @return object Validator
      */
-    public function __CONSTRUCT() {
+    public function __CONSTRUCT($formtype = 'normal') {
 
         $this->form = array();
         $this->formattr = array(
@@ -62,6 +72,7 @@ class Formbuilder {
             'method' => 'post',
             'accept-charset' => 'utf-8'
         );
+        $this->formtype = $formtype; 
         $this->currentfield = NULL;
         $this->editdata = array();
         $this->dummyvalue = 'dummy';
@@ -72,7 +83,6 @@ class Formbuilder {
     @TODO
     form attributes: action, method, autocomplete, novalidate, target, enctype
     enctype = application/x-www-form-urlencoded
-    markup = html 
     novalidate = false
     */
 
@@ -107,10 +117,7 @@ class Formbuilder {
 			)
 		);
 
-        // @TODO switch for default settings for various form elements
         // @TODO fix setLabelClass for radio, checkbox, etc
-        // @TODO apply bootstrap5 classes to labels as needed
-        // @TODO create datalists with LIST, ID, CLASS attributes?
         // @TODO make select label the first option, but without value attr?
 		switch($type) {
 			case 'button':
@@ -122,6 +129,7 @@ class Formbuilder {
 				break;
 
 			// case 'date':
+                // @TODO set label attribute
 			// 	$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Select a date')->attr('autocomplete', 'off');
 			// 	break;
 
@@ -159,17 +167,16 @@ class Formbuilder {
 				break;
 
 			case 'textarea':
-				$this->labelAttr('class', 'form-label')->attr('class', 'form-control')->attr('placeholder', $label);
+				$this->labelAttr('class', 'form-label')->attr('class', 'form-control');
 				break;
 
-            // @TODO needed?
 			case 'zip':
 				$this->labelAttr('class', 'form-label')->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Standard or zip+4 format');
 				break;
 
             // basic text input
 			default:
-				$this->labelAttr('class', 'form-label')->attr('class', 'form-control')->attr('placeholder', $label);
+				$this->labelAttr('class', 'form-label')->attr('class', 'form-control');
 		}
 
         // set editdata if present       
@@ -224,6 +231,16 @@ class Formbuilder {
 
 
     /**
+     * create a datalist
+     * @TODO finish
+     * @see 
+     */
+    public function datalist($name, $choices) {
+        $this->field('datalist', $name)->choices($choices);
+    }
+
+
+    /**
      * add choices for select, radio elements
      * @TODO determine if associative array or not? create if not?
      */
@@ -255,6 +272,14 @@ class Formbuilder {
 				$string .= $this->createLabel($this->form[$name]);
 				$string .= '</div>';
 				break;
+
+            case 'datalist':
+                $string = '<datalist id="' . $this->form[$name]['attr']['id']. '">';
+                foreach($this->form[$name]['choices'] as $choice) {
+                    $string .= '<option value="' . $choice . '">';
+                }
+                $string .= '</datalist>';
+                break;
 
             // @TODO set default value?
             // @TODO set "checked"
@@ -294,31 +319,50 @@ class Formbuilder {
 				break;
 
 			case 'select':    
-				$string = '<select' . $this->createAttributes($this->form[$name]) . '>';
-				// create placeholder if present, else show empty option
-				if(isset($this->form[$name]['attr']['placeholder'])) {
-                    $string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
+                if($this->formtype == 'floating') {
+                    $string = '<select' . $this->createAttributes($this->form[$name]) . '>';
+                    // create placeholder if present, else show empty option
+                    if(isset($this->form[$name]['attr']['placeholder'])) {
+                        $string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
+                    }
+                    else {
+                            $string .= '<option value=""></option>';
+                    }
+
+                    foreach($this->form[$name]['choices'] as $key => $val) {
+                        $string .= '<option value="' . $key . '"';
+                        
+                        if($key == $this->form[$name]['attr']['value']) {
+                            $string .= ' selected';
+                        }
+                            
+                        $string .= '>' . $val . '</option>';
+                    }
+                    $string .= '</select>';
+                    $string .= $this->createLabel($this->form[$name]);
                 }
                 else {
-                        $string .= '<option value=""></option>';
-                }
-
-                foreach($this->form[$name]['choices'] as $key => $val) {
-                    $string .= '<option value="' . $key . '"';
-                    
-                    if($key == $this->form[$name]['attr']['value']) {
-                        $string .= ' selected';
+                    $string = $this->createLabel($this->form[$name]);
+                    $string .= '<select' . $this->createAttributes($this->form[$name]) . '>';
+                    // create placeholder if present, else show empty option
+                    if(isset($this->form[$name]['attr']['placeholder'])) {
+                        $string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
                     }
+                    else {
+                            $string .= '<option value=""></option>';
+                    }
+
+                    foreach($this->form[$name]['choices'] as $key => $val) {
+                        $string .= '<option value="' . $key . '"';
                         
-                    $string .= '>' . $val . '</option>';
+                        if($key == $this->form[$name]['attr']['value']) {
+                            $string .= ' selected';
+                        }
+                            
+                        $string .= '>' . $val . '</option>';
+                    }
+                    $string .= '</select>';   
                 }
-                $string .= '</select>';
-                $string .= $this->createLabel($this->form[$name]);
-                break;
-                                
-			// @TODO finish
-            case 'state':
-                $string = 'state dropdown';
                 break;
 
 			case 'submit':
@@ -328,15 +372,30 @@ class Formbuilder {
 				break;
 
 			case 'textarea':
-				$string = '<textarea' . $this->createAttributes($this->form[$name]) . '>';
-				$string .= $this->form[$name]['attr']['value'];
-				$string .= '</textarea>';
-				$string .= $this->createLabel($this->form[$name]);
+                if($this->formtype == 'floating') {
+                    $string = '<textarea' . $this->createAttributes($this->form[$name]) . '>';
+                    $string .= $this->form[$name]['attr']['value'];
+                    $string .= '</textarea>';
+                    $string .= $this->createLabel($this->form[$name]);
+                }
+                else {
+                    $string = $this->createLabel($this->form[$name]);
+                    $string .= '<textarea' . $this->createAttributes($this->form[$name]) . '>';
+                    $string .= $this->form[$name]['attr']['value'];
+                    $string .= '</textarea>';
+                }
 				break;
 
 			default:
-                $string = '<input' . $this->createAttributes($this->form[$name]) . ' />';
-				$string .= $this->createLabel($this->form[$name]);
+                if($this->formtype == 'floating') {
+                    $string = '<input' . $this->createAttributes($this->form[$name]) . ' />';
+				    $string .= $this->createLabel($this->form[$name]);
+                }
+                else {
+				    $string = $this->createLabel($this->form[$name]);
+                    $string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
+                }
+                
 
 		}
 
@@ -537,7 +596,13 @@ class Formbuilder {
         echo '<form ' . $attributes . '>';
 
         foreach($this->form as $key => $val) {
-            echo '<div class="form-floating mb-3">';
+            if($this->formtype == 'floating') {
+                echo '<div class="form-floating mb-3">';
+            }
+            else {
+                echo '<div class="mb-3">';
+            }
+
             $this->show($key);
             echo '</div>';
         }

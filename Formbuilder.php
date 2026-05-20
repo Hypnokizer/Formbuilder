@@ -1,8 +1,6 @@
 <?php 
 
 // @TODO alphabetize methods or group related; use @see in docblock
-// @TODO create tabindex in order of field creation? set honeypot = -1
-// @TODO create honeypot form element automatically?
 // @TODO fill in docblocks; use old version for help
 
 
@@ -45,8 +43,7 @@ class Formbuilder {
     protected $editdata;
 
     /**
-     * dummy data to capture unchecked status from 
-     * @TODO create method to set this value? set in construct()
+     * dummy data to capture unchecked status from checkboxes
      */
     protected $dummyvalue;
 
@@ -75,13 +72,6 @@ class Formbuilder {
         $this->dummychoices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three'); // @TODO change to yes/no or something useful by default?
     }
 
-    /*
-    @TODO
-    form attributes: action, method, autocomplete, novalidate, target, enctype
-    enctype = application/x-www-form-urlencoded
-    novalidate = false
-    */
-
 
     /**
      * set the field name to start the validation
@@ -89,7 +79,6 @@ class Formbuilder {
      * @param string $alias optional alias to use on error messages instead of field name
      * @see determineValue()
      */
-	// @TODO review input types
     // @TODO add switch type (like checkbox)
     // @TODO input groups?
     // @TODO button addons?
@@ -113,8 +102,7 @@ class Formbuilder {
 			)
 		);
 
-        // @TODO fix setLabelClass for radio, checkbox, etc
-        // @TODO make select label the first option, but without value attr?
+        // @TODO add special elements: date, period
 		switch($type) {
 			case 'button':
                 $this->attr('class', 'btn');
@@ -123,11 +111,6 @@ class Formbuilder {
 			case 'checkbox':
                 $this->labelAttr('class', 'form-check-label')->attr('class', 'form-check-input')->attr('value', 'yes')->attr('checked', false);
 				break;
-
-			// case 'date':
-                // @TODO set label attribute
-			// 	$this->attr('type', 'text')->attr('class', 'form-control')->attr('placeholder', 'Select a date')->attr('autocomplete', 'off');
-			// 	break;
 
 			case 'radio':
                 $this->labelAttr('class', 'form-check-label')->attr('class', 'form-check-input')->choices($this->dummychoices);
@@ -158,7 +141,6 @@ class Formbuilder {
 				break;
 
 			case 'submit':
-                // @TODO should submit button have a value? to test for submission? in html5?
                 $this->attr('class', 'btn');
 				break;
 
@@ -228,7 +210,6 @@ class Formbuilder {
 
     /**
      * create a datalist
-     * @TODO finish
      * @see 
      */
     public function datalist($name, $choices) {
@@ -238,7 +219,7 @@ class Formbuilder {
 
     /**
      * add choices for select, radio elements
-     * @TODO determine if associative array or not? create if not?
+     * @TODO determine if associative array or not? create if not? use array_is_list()?
      */
     public function choices($array) {
         $this->form[$this->currentfield]['choices'] = $array;
@@ -248,7 +229,6 @@ class Formbuilder {
 
     /**
      * display the form element
-     * @TODO revise and finish
      */
     public function show($name) {
 		// echo form element based on type 
@@ -260,7 +240,6 @@ class Formbuilder {
 				break;
 
             // add hidden input with same name to capture unchecked form submissions
-            // @TODO add "checkbox" prefix to dummyvalue to differentiate from radio buttons?
 			case 'checkbox':
                 $string = '<input type="hidden" name="' . $name . '" value="' . $this->dummyvalue . '" />';
 				$string .= '<div class="form-check">';
@@ -314,6 +293,7 @@ class Formbuilder {
 				$string .= '</button>';
 				break;
 
+            // @TODO make select label the first option, but without value attr?
 			case 'select':    
                 if($this->formtype == 'floating') {
                     $string = '<select' . $this->createAttributes($this->form[$name]) . '>';
@@ -399,9 +379,6 @@ class Formbuilder {
     }
 
 
-
-// @TODO 
-
     // @TODO buttons can use attr: form, formaction, formmethod, formtarget, formenctype, formnovalidate
     // @TODO button also: autofocus, command, commandfor, disabled, value
     // @TODO button type: submit, reset, button
@@ -472,8 +449,7 @@ class Formbuilder {
 
 
 	/**
-     * @TODO research form label attribute options
-     * @TODO test labels for radio, checkboxes, etc
+     * create label HTML
 	 */
     protected function createLabel($array) {
         if(!empty($array['label'])) {
@@ -568,8 +544,7 @@ class Formbuilder {
 
 
     /**
-     * render form
-     * @TODO review
+     * render form HTML
      */
 
     public function showForm() {

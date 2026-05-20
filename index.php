@@ -32,6 +32,8 @@ $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', '
 
 $f->datalist('namelist', array('nate', 'annie', 'daniel', 'david'));
 
+$f->field('password', 'mypass', 'My Pass');
+
 
 
 $choices = array('one' => 'One', 'two' => 'Two');

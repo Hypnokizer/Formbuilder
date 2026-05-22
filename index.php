@@ -20,32 +20,34 @@ $f->formAttr('id', 'formValidate')->formAttr('class', 'test2')->formAttr('autoco
 $editvalue = array();
 $editdata['name'] = 'Nathan Kizer';
 $editdata['mycheck1'] = 'actualvalue';
-$editdata['myradio'] = 'two';
+$editdata['myradio'] = 'three';
 $editdata['mytextarea'] = 'this is some text';
 
-// $f->setEditData($editdata);
+$f->setEditData($editdata);
 
 
 
 
-$f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->attr('list', 'namelist');
+// $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->attr('list', 'namelist');
 
-$f->datalist('namelist', array('nate', 'annie', 'daniel', 'david'));
+// $f->datalist('namelist', array('nate', 'annie', 'daniel', 'david'));
 
-$f->field('password', 'mypass', 'My Pass');
-
-
-
-$choices = array('one' => 'One', 'two' => 'Two');
-$f->field('select', 'pickone', 'Pick One')->choices($choices);
+// $f->field('password', 'mypass', 'My Pass');
 
 
-$f->field('textarea', 'mytextarea', 'My Textarea')->attr('rows', 5);
 
-$f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
+$choices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three', 'four' => 'Four');
+// $f->field('select', 'pickone', 'Pick One')->choices($choices);
 
-$f->field('state', 'mystate', 'State');
-$f->field('zip', 'myzip', 'Zip');
+
+// $f->field('textarea', 'mytextarea', 'My Textarea')->attr('rows', 5);
+
+// $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
+
+$f->field('radio', 'myradio', 'My Radio')->choices($choices);
+
+// $f->field('state', 'mystate', 'State');
+// $f->field('zip', 'myzip', 'Zip');
 
 
 // $radio = array(

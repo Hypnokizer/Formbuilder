@@ -265,22 +265,35 @@ class Formbuilder {
                 $firstkey = array_key_first($this->form[$name]['choices']);
 
                 foreach($this->form[$name]['choices'] as $key => $val) {
+                    // array of input attributes
+                    $array = $this->form[$name];
+                    
+                    $array['label'] = $val; // label for radio button 
+                    $array['labelattr']['for'] = $this->form[$name]['attr']['name'] . $counter;
+                    $array['attr']['value'] = $key; // define choice for each radio button 
+                    $array['attr']['id'] = $this->form[$name]['attr']['name'] . $counter; // unique ID for each radio button                    
+
                     // set default selection
-                    if($key == $firstkey) {
-                        $this->form[$name]['attr']['checked'] = true;
+                    if(isset($this->form[$name]['attr']['value'])) {
+                        if($key == $this->form[$name]['attr']['value']) {
+                            $array['attr']['checked'] = true;
+                        }
+                        else {
+                            $array['attr']['checked'] = false;
+                        }
                     }
                     else {
-                        $this->form[$name]['attr']['checked'] = false;
+                        if($key == $firstkey) {
+                            $array['attr']['checked'] = true;
+                        }
+                        else {
+                            $array['attr']['checked'] = false;
+                        }
                     }
 
-                    $this->form[$name]['attr']['value'] = $key; // define choice for each radio button 
-                    $this->form[$name]['attr']['id'] = $this->form[$name]['attr']['name'] . $counter; // unique ID to each radio button
-                    $this->form[$name]['label'] = $val; // define label for each radio button
-                    $this->form[$name]['labelattr']['for'] = $this->form[$name]['attr']['name'] . $counter;
-
                     $string .= '<div class="form-check">';
-                    $string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
-                    $string .= $this->createLabel($this->form[$name]);
+                    $string .= '<input' . $this->createAttributes($array) . ' />';
+                    $string .= $this->createLabel($array);
                     $string .= '</div>';
 
                     $counter++;
@@ -493,14 +506,6 @@ class Formbuilder {
                     $this->form[$this->currentfield]['attr']['checked'] = false;
                 }
             }
-            // elseif($this->form[$this->currentfield]['attr']['type'] == 'radio') {
-            //     if($this->form[$this->currentfield]['attr']['value'] == $this->editdata[$this->currentfield]) {
-            //         $this->form[$this->currentfield]['attr']['checked'] = true;
-            //     }
-            //     else {
-            //         $this->form[$this->currentfield]['attr']['checked'] = false;
-            //     }
-            // }
             else {
                 $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
             }

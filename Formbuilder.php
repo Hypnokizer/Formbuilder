@@ -79,9 +79,6 @@ class Formbuilder {
      * @param string $alias optional alias to use on error messages instead of field name
      * @see determineValue()
      */
-    // @TODO add switch type (like checkbox)
-    // @TODO input groups?
-    // @TODO button addons?
 
     public function field($type, $name, $label = NULL) {
 		// set the master key
@@ -102,7 +99,6 @@ class Formbuilder {
 			)
 		);
 
-        // @TODO add special elements: date, period
 		switch($type) {
 			case 'button':
                 $this->attr('class', 'btn');
@@ -143,6 +139,10 @@ class Formbuilder {
 			case 'submit':
                 $this->attr('class', 'btn');
 				break;
+
+            case 'switch':
+                $this->labelAttr('class', 'form-check-label')->attr('class', 'form-check-input')->attr('type', 'switch')->attr('value', 'yes');
+                break;
 
 			case 'textarea':
 				$this->labelAttr('class', 'form-label')->attr('class', 'form-control');
@@ -219,7 +219,6 @@ class Formbuilder {
 
     /**
      * add choices for select, radio elements
-     * @TODO determine if associative array or not? create if not? use array_is_list()?
      */
     public function choices($array) {
         $this->form[$this->currentfield]['choices'] = $array;
@@ -256,9 +255,6 @@ class Formbuilder {
                 $string .= '</datalist>';
                 break;
 
-            // @TODO set default value?
-            // @TODO set "checked"
-            // @TODO determineValue()
 			case 'radio':
                 $string = NULL;
                 $counter = 1;
@@ -306,7 +302,6 @@ class Formbuilder {
 				$string .= '</button>';
 				break;
 
-            // @TODO make select label the first option, but without value attr?
 			case 'select':    
                 if($this->formtype == 'floating') {
                     $string = '<select' . $this->createAttributes($this->form[$name]) . '>';
@@ -333,6 +328,7 @@ class Formbuilder {
                 else {
                     $string = $this->createLabel($this->form[$name]);
                     $string .= '<select' . $this->createAttributes($this->form[$name]) . '>';
+
                     // create placeholder if present, else show empty option
                     if(isset($this->form[$name]['attr']['placeholder'])) {
                         $string .= '<option disabled selected>' . $this->form[$name]['attr']['placeholder'] . '</option>';
@@ -359,6 +355,15 @@ class Formbuilder {
 				$string .= $this->form[$name]['label'];
 				$string .= '</button>';
 				break;
+
+            case 'switch':
+                $this->form[$name]['attr']['type'] = 'checkbox'; // change type after "switch" is selected
+                $string = '<input type="hidden" name="' . $name . '" value="' . $this->dummyvalue . '" />';
+				$string .= '<div class="form-check form-switch">';
+				$string .= '<input' . $this->createAttributes($this->form[$name]) . ' />';
+				$string .= $this->createLabel($this->form[$name]);
+				$string .= '</div>';
+                break;
 
 			case 'textarea':
                 if($this->formtype == 'floating') {
@@ -392,9 +397,7 @@ class Formbuilder {
     }
 
 
-    // @TODO buttons can use attr: form, formaction, formmethod, formtarget, formenctype, formnovalidate
-    // @TODO button also: autofocus, command, commandfor, disabled, value
-    // @TODO button type: submit, reset, button
+
     protected function createAttributes($array) {
 		// make class array into a string
 		if(!empty($array['attr']['class'])) {
@@ -417,10 +420,6 @@ class Formbuilder {
 				$notused = array('placeholder');
 				break;
 
-            // @TODO allow "checked" attribute?
-            // @TODO set default checked? how?
-            // @TODO allow "disabled"?
-            // @TODO review NOTUSED values...
 			case 'radio':
 				$notused = array('autofocus', 'placeholder');
 				break;
@@ -428,6 +427,10 @@ class Formbuilder {
 			case 'select':
 				$notused = array('type', 'checked', 'value');
 				break;
+
+            case 'switch':
+                $notused = array('placeholder'); 
+                break;
 
 			case 'textarea':
 				$notused = array('type', 'checked', 'value');
@@ -489,8 +492,7 @@ class Formbuilder {
     }
 
 
-    // @TODO test radio
-    // @TODO add logic for radio buttons
+
     /**
      * @see field()
      * @see attr()
@@ -498,7 +500,7 @@ class Formbuilder {
     protected function determineValue() {
         // if EDITDATA exists use it
         if(isset($this->editdata[$this->currentfield])) {
-            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
                 if($this->form[$this->currentfield]['attr']['value'] == $this->editdata[$this->currentfield]) {
                     $this->form[$this->currentfield]['attr']['checked'] = true;
                 }
@@ -513,7 +515,7 @@ class Formbuilder {
 
         // if POST exists use it
         if(isset($_POST[$this->currentfield])) {
-            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
                 if($this->form[$this->currentfield]['attr']['value'] == $_POST[$this->currentfield]) {
                     $this->form[$this->currentfield]['attr']['checked'] = true;
                 }
@@ -528,7 +530,7 @@ class Formbuilder {
 
         // if GET exists use it
         if(isset($_GET[$this->currentfield])) {
-            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox') {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
                 if($this->form[$this->currentfield]['attr']['value'] == $_GET[$this->currentfield]) {
                     $this->form[$this->currentfield]['attr']['checked'] = true;
                 }
@@ -587,13 +589,6 @@ class Formbuilder {
     }
 
 
-    /*
-    @TODO
-    attributes: action, method, autocomplete, novalidate, target, enctype
-
-    enctype = application/x-www-form-urlencoded
-    novalidate = false
-    */
 
 
     /**
@@ -616,7 +611,6 @@ class Formbuilder {
 
 
 
-    // @TODO docblock
     // uses associative array from database, etc to populate form
     public function setEditData($data) {
         $this->editdata = $data;

@@ -21,11 +21,10 @@ $editvalue = array();
 $editdata['name'] = 'Nathan Kizer';
 $editdata['mycheck1'] = 'actualvalue';
 $editdata['myradio'] = 'three';
+$editdata['myswitch'] = 'yes';
 $editdata['mytextarea'] = 'this is some text';
 
 $f->setEditData($editdata);
-
-
 
 
 // $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->attr('list', 'namelist');
@@ -37,8 +36,9 @@ $f->setEditData($editdata);
 
 
 $choices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three', 'four' => 'Four');
-// $f->field('select', 'pickone', 'Pick One')->choices($choices);
+$f->field('select', 'pickone', 'Pick One')->choices($choices);
 
+$f->field('switch', 'myswitch', 'My Switch');
 
 // $f->field('textarea', 'mytextarea', 'My Textarea')->attr('rows', 5);
 

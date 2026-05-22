@@ -1,22 +1,32 @@
 <?php 
 
 // @TODO alphabetize methods or group related; use @see in docblock
-// @TODO fill in docblocks; use old version for help
 
+
+/**
+ * Quickly build form HTML
+ * 
+ * Quickly create and define form elements. Expressly used for rendering the HTML for a form element. It is tailored for Bootstrap 5, but can be adapted for use anywhere.
+ * 
+ * @author Nathan Kizer <hypnokizer@gmail.com>
+ * @version 7.0
+ * @revision 2026-05-22 Added ability to chain methods
+ * @todo change default choices array in construct() to something inherently useful
+ */
 
 namespace App\Controllers;
 
 class Formbuilder {
 
     /**
-     * master array of form details
+     * Master array of form details.
      * @access protected
      * @var array
      */
     protected $form;
 
     /**
-     * master array of form attributes
+     * Master array of form attributes.
      * @access protected
      * @var array
      * @see formAttr()
@@ -24,40 +34,47 @@ class Formbuilder {
     protected $formattr;
 
     /**
-     * determines type of form to be displayed: normal/floating
+     * Determines type of form to be displayed: normal/floating.
      * @access protected
      * @var string
      */
     protected $formtype;
 
     /**
-     * currently selected key/field to validate data
+     * Currently selected key/field to create form element.
      * @access protected
      * @var string
      */
     protected $currentfield;
 
     /**
-     * 
+     * Array of values for prepopulating forms, usually from a database.
+     * @access protected
+     * @var array
      */
     protected $editdata;
 
     /**
-     * dummy data to capture unchecked status from checkboxes
+     * Dummy data to capture unchecked status from checkboxes and switches.
+     * @access protected
+     * @var string
      */
     protected $dummyvalue;
 
     /**
-     * dummy data for elements requiring options (SELECT, RADIO)
+     * Dummy data for elements requiring options (SELECT, RADIO).
+     * @access protected
+     * @var array
      */
     protected $dummychoices;
 
     /**
-     * create new instance of validator class
-     * @param array $data data to validate
-     * @return object Validator
+     * Create new instance of validator class.
+     * 
+     * @param array $formtype Type of form to display. Default is normal.
+     * @return object 
      */
-    public function __CONSTRUCT($formtype = 'normal') {
+    public function __CONSTRUCT(string $formtype = 'normal') {
 
         $this->form = array();
         $this->formattr = array(
@@ -69,18 +86,23 @@ class Formbuilder {
         $this->currentfield = NULL;
         $this->editdata = array();
         $this->dummyvalue = 'dummy';
-        $this->dummychoices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three'); // @TODO change to yes/no or something useful by default?
+        $this->dummychoices = array('one' => 'One', 'two' => 'Two', 'three' => 'Three');
     }
 
 
     /**
-     * set the field name to start the validation
-     * @param string $name name of the field/key as on data to validate
-     * @param string $alias optional alias to use on error messages instead of field name
+     * Set the field name to start the form element.
+     * 
+     * Adds a new form element to the master array and defines default values.
+     * 
+     * @param string $type Type of form element.
+     * @param string $name Unique name of form element.
+     * @param string $label Optional label text for form element.
+     * @return object 
      * @see determineValue()
      */
 
-    public function field($type, $name, $label = NULL) {
+    public function field(string $type, string $name, string $label = NULL) {
 		// set the master key
 		$this->currentfield = $name;
 
@@ -166,9 +188,15 @@ class Formbuilder {
 
 
     /**
-     * set label attributes 
+     * Set label attributes.
+     * 
+     * Set the label attributes for a form element. Class attributes are added as an array.
+     * 
+     * @param string $key The type of label attribute.
+     * @param string $val The value of the label attribute.
+     * @return object
      */
-    public function labelAttr($key, $val) {
+    public function labelAttr(string $key, string $val) {
         if($key == 'class') {
             $this->form[$this->currentfield]['labelattr'][$key][] = $val;
         }
@@ -181,10 +209,16 @@ class Formbuilder {
 
 
     /**
-     * set form field attribute
+     * Set form field attributes.
+     * 
+     * Set the attributes for a form element. Class attributes are added as an array.
+     * 
+     * @param string $key The type of attribute.
+     * @param string $val The value of the attribute.
+     * @return object
      * @see determineValue()
      */
-    public function attr($key, $val) {
+    public function attr(string $key, string $val) {
         // if class attribute, add to an array
         if($key == 'class') {
             $this->form[$this->currentfield]['attr'][$key][] = $val;
@@ -200,36 +234,63 @@ class Formbuilder {
 
 
     /**
-     * add a hidden field
+     * Add a hidden field.
+     * 
+     * This is a shortcut to add a hidden form element. It utilizes the field() method.
+     * 
+     * @param string $name The name of the hidden field.
+     * @param string $value The value of the hidden field.
+     * @return object
+     * @see field()
      */
-    public function hidden($name, $value) {
+    public function hidden(string $name, string $value) {
         $this->field('hidden', $name)->attr('value', $value);
         return $this;
     }
 
 
     /**
-     * create a datalist
-     * @see 
+     * Create a datalist.
+     * 
+     * This is a shortcut to add a datalist to be used in conjunction with a text input. It utilizes the field()  and choices() methods. It creates a predefined list of options for a text field. The text field should reference the name of the datalist using a list attribute.
+     * 
+     * @param string $name The name of the datalist.
+     * @param array $choices The indexed array of choices for the datalist.
+     * @return object
+     * @see field()
      */
-    public function datalist($name, $choices) {
+    public function datalist(string $name, array $choices) {
         $this->field('datalist', $name)->choices($choices);
+        return $this;
     }
 
 
     /**
-     * add choices for select, radio elements
+     * Add choices for select and radio elements.
+     * 
+     * @param array $array An associative array of choices to be used in select and radio elements.
+     * @return object
+     * @see construct()
      */
-    public function choices($array) {
+    public function choices(array $array) {
         $this->form[$this->currentfield]['choices'] = $array;
         return $this;
     }
 
 
     /**
-     * display the form element
+     * Display the form element.
+     * 
+     * Display the various form elements defined in the master array. Echoes an HTML string for the form element.
+     * 
+     * @param string $name The field name to render.
+     * @return string
+     * @see createAttributes()
+     * @see createLabel()
+     * @see show()
+     * @see showForm()
      */
-    public function show($name) {
+    public function show(string $name) {
 		// echo form element based on type 
 		switch($this->form[$name]['attr']['type']) { 
 			case 'button':
@@ -398,7 +459,18 @@ class Formbuilder {
 
 
 
-    protected function createAttributes($array) {
+    /**
+     * Creates an attribute string.
+     * 
+     * Creates an attribute string based on the master form array definitions.
+     * 
+     * @param array $array Array of form element definitions.
+     * @return string
+     * @see createLabel()
+     * @see show()
+     * @see showForm()
+     */
+    protected function createAttributes(array $array) {
 		// make class array into a string
 		if(!empty($array['attr']['class'])) {
 			$array['attr']['class'] = implode(' ', $array['attr']['class']);
@@ -465,9 +537,17 @@ class Formbuilder {
 
 
 	/**
-     * create label HTML
+     * Create label HTML.
+     * 
+     * Creates the label for a form element based on the master form array definitions.
+     * 
+     * @param array $array Array of form label definitions.
+     * @return mixed
+     * @see createAttributes()
+     * @see show()
+     * @see showForm()
 	 */
-    protected function createLabel($array) {
+    protected function createLabel(array $array) {
         if(!empty($array['label'])) {
             $string = '<label ';
 
@@ -494,6 +574,12 @@ class Formbuilder {
 
 
     /**
+     * Determine value of form element.
+     * 
+     * Determines the value of the current form element based on editdata, POST, and GET values. Special cases made for checkbox and switch elements.
+     * 
+     * @return void
+     * @see editdata
      * @see field()
      * @see attr()
      */
@@ -551,7 +637,12 @@ class Formbuilder {
 
 
     /**
-     * render form HTML
+     * Renders form HTML.
+     * 
+     * Renders form HTML including defined form attributes. Wraps each form element in a div based on the form type defined in the construct().
+     * 
+     * @return string
+     * @see construct()
      */
 
     public function showForm() {
@@ -592,9 +683,14 @@ class Formbuilder {
 
 
     /**
-     * add attributes to the form 
+     * Add attributes to the form.
+     * 
+     * @param string $key The type of attribute.
+     * @param string $val The value of the attribute.
+     * @return object
+     * @see showForm()
      */
-    public function formAttr($key, $val) {
+    public function formAttr(string $key, string $val) {
         // if class attribute, add to an array
         if($key == 'class') {
             $this->formattr[$key][] = $val;
@@ -608,11 +704,15 @@ class Formbuilder {
 
 
 
-
-
-
-    // uses associative array from database, etc to populate form
-    public function setEditData($data) {
+    /**
+     * Define data used to prepopulate the form.
+     * 
+     * This data typically comes from a database record. It is an associative array of name and values, where the array keys are form field names.
+     * 
+     * @param array $data Associative array of form values.
+     * @return void
+     */
+    public function setEditData(array $data) {
         $this->editdata = $data;
     }
 
@@ -621,7 +721,9 @@ class Formbuilder {
 
 
     /**
-     * show the object for debugging
+     * Show the object for debugging.
+     * 
+     * @return string
      */
     public function showObject() {
         echo '<pre>';

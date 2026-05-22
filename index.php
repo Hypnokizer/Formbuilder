@@ -18,18 +18,18 @@ $f = new formbuilder();
 $f->formAttr('id', 'formValidate')->formAttr('class', 'test2')->formAttr('autocomplete', 'off');
 
 $editvalue = array();
-$editdata['name'] = 'Nathan Kizer';
+// $editdata['name'] = 'Nathan Kizer';
 $editdata['mycheck1'] = 'actualvalue';
 $editdata['myradio'] = 'three';
 $editdata['myswitch'] = 'yes';
-$editdata['mytextarea'] = 'this is some text';
+// $editdata['mytextarea'] = 'this is some text';
 
 $f->setEditData($editdata);
 
 
-// $f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->attr('list', 'namelist');
+$f->field('text', 'name', 'Name')->labelAttr('data-id', 3)->labelAttr('class', 'form-control-label')->attr('list', 'namelist');
 
-// $f->datalist('namelist', array('nate', 'annie', 'daniel', 'david'));
+$f->datalist('namelist', array('nate', 'annie', 'daniel', 'david'))->attr('disabled', true);
 
 // $f->field('password', 'mypass', 'My Pass');
 
@@ -40,7 +40,7 @@ $f->field('select', 'pickone', 'Pick One')->choices($choices);
 
 $f->field('switch', 'myswitch', 'My Switch');
 
-// $f->field('textarea', 'mytextarea', 'My Textarea')->attr('rows', 5);
+$f->field('textarea', 'mytextarea', 'My Textarea')->attr('rows', 5);
 
 // $f->field('checkbox', 'mycheck1', 'My Check 1')->attr('value', 'actualvalue');
 

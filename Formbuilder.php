@@ -1,8 +1,5 @@
 <?php 
 
-// @TODO alphabetize methods or group related; use @see in docblock
-
-
 /**
  * Quickly build form HTML
  * 
@@ -14,7 +11,7 @@
  * @todo change default choices array in construct() to something inherently useful
  */
 
-namespace App\Controllers;
+namespace Hypnokizer;
 
 class Formbuilder {
 
@@ -68,6 +65,7 @@ class Formbuilder {
      */
     protected $dummychoices;
 
+
     /**
      * Create new instance of validator class.
      * 
@@ -91,6 +89,39 @@ class Formbuilder {
 
 
     /**
+     * Define data used to prepopulate the form.
+     * 
+     * This data typically comes from a database record. It is an associative array of name and values, where the array keys are form field names.
+     * 
+     * @param array $data Associative array of form values.
+     * @return void
+     */
+    public function setEditData(array $data) {
+        $this->editdata = $data;
+    }
+
+
+    /**
+     * Add attributes to the form.
+     * 
+     * @param string $key The type of attribute.
+     * @param string $val The value of the attribute.
+     * @return object
+     */
+    public function formAttr(string $key, string $val) {
+        // if class attribute, add to an array
+        if($key == 'class') {
+            $this->formattr[$key][] = $val;
+        }
+        else {
+            $this->formattr[$key] = $val;
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Set the field name to start the form element.
      * 
      * Adds a new form element to the master array and defines default values.
@@ -99,9 +130,10 @@ class Formbuilder {
      * @param string $name Unique name of form element.
      * @param string $label Optional label text for form element.
      * @return object 
-     * @see determineValue()
+     * @see attr()
+     * @see hidden()
+     * @see datalist()
      */
-
     public function field(string $type, string $name, string $label = NULL) {
 		// set the master key
 		$this->currentfield = $name;
@@ -186,53 +218,6 @@ class Formbuilder {
     }
 
 
-
-    /**
-     * Set label attributes.
-     * 
-     * Set the label attributes for a form element. Class attributes are added as an array.
-     * 
-     * @param string $key The type of label attribute.
-     * @param string $val The value of the label attribute.
-     * @return object
-     */
-    public function labelAttr(string $key, string $val) {
-        if($key == 'class') {
-            $this->form[$this->currentfield]['labelattr'][$key][] = $val;
-        }
-        else {
-            $this->form[$this->currentfield]['labelattr'][$key] = $val;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Set form field attributes.
-     * 
-     * Set the attributes for a form element. Class attributes are added as an array.
-     * 
-     * @param string $key The type of attribute.
-     * @param string $val The value of the attribute.
-     * @return object
-     * @see determineValue()
-     */
-    public function attr(string $key, string $val) {
-        // if class attribute, add to an array
-        if($key == 'class') {
-            $this->form[$this->currentfield]['attr'][$key][] = $val;
-        }
-        else {
-            $this->form[$this->currentfield]['attr'][$key] = $val;
-        }
-
-        $this->determineValue();
-
-        return $this;
-    }
-
-
     /**
      * Add a hidden field.
      * 
@@ -266,15 +251,228 @@ class Formbuilder {
 
 
     /**
+     * Set label attributes.
+     * 
+     * Set the label attributes for a form element. Class attributes are added as an array.
+     * 
+     * @param string $key The type of label attribute.
+     * @param string $val The value of the label attribute.
+     * @return object
+     */
+    public function labelAttr(string $key, string $val) {
+        if($key == 'class') {
+            $this->form[$this->currentfield]['labelattr'][$key][] = $val;
+        }
+        else {
+            $this->form[$this->currentfield]['labelattr'][$key] = $val;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Set form field attributes.
+     * 
+     * Set the attributes for a form element. Class attributes are added as an array.
+     * 
+     * @param string $key The type of attribute.
+     * @param string $val The value of the attribute.
+     * @return object
+     * @see choices()
+     */
+    public function attr(string $key, string $val) {
+        // if class attribute, add to an array
+        if($key == 'class') {
+            $this->form[$this->currentfield]['attr'][$key][] = $val;
+        }
+        else {
+            $this->form[$this->currentfield]['attr'][$key] = $val;
+        }
+
+        $this->determineValue();
+
+        return $this;
+    }
+
+
+    /**
      * Add choices for select and radio elements.
      * 
      * @param array $array An associative array of choices to be used in select and radio elements.
      * @return object
-     * @see construct()
+     * @see attr()
      */
     public function choices(array $array) {
         $this->form[$this->currentfield]['choices'] = $array;
         return $this;
+    }
+
+
+    /**
+     * Creates an attribute string.
+     * 
+     * Creates an attribute string based on the master form array definitions.
+     * 
+     * @param array $array Array of form element definitions.
+     * @return string
+     */
+    protected function createAttributes(array $array) {
+		// make class array into a string
+		if(!empty($array['attr']['class'])) {
+			$array['attr']['class'] = implode(' ', $array['attr']['class']);
+		}
+
+		// string for attributes
+		$string = NULL;
+
+		// define array of non-used attributes
+		$notused = array();
+
+		// each element has an array of attributes to NOT USE
+		switch($array['attr']['type']) {
+			case 'button':
+				$notused = array('checked', 'placeholder');
+				break;
+
+			case 'checkbox':
+				$notused = array('placeholder');
+				break;
+
+			case 'radio':
+				$notused = array('autofocus', 'placeholder');
+				break;
+
+			case 'select':
+				$notused = array('type', 'checked', 'value');
+				break;
+
+            case 'switch':
+                $notused = array('placeholder'); 
+                break;
+
+			case 'textarea':
+				$notused = array('type', 'checked', 'value');
+				break;
+
+			// inputs and undefined elements
+			default:
+				$notused = array('checked');
+		}
+
+		// step thru the array adding attributes
+		foreach($array['attr'] as $key => $val) {
+			if(!in_array($key, $notused)) {
+				if(is_bool($val)) {
+					if($val == true) {
+						$string .= ' ' . $key;
+					}
+				}
+				else {
+					// allows for VALUE to be set to zero!
+					if(!empty($val) || $val == 0) {
+						$string .= ' ' . $key . '="' . htmlentities((string)$val, ENT_QUOTES) . '"';
+					}
+				}
+			}
+		}
+
+		// return the string
+		return $string;
+    }
+
+
+	/**
+     * Create label HTML.
+     * 
+     * Creates the label for a form element based on the master form array definitions.
+     * 
+     * @param array $array Array of form label definitions.
+     * @return mixed
+     * @see createAttributes()
+     * @see show()
+     * @see showForm()
+	 */
+    protected function createLabel(array $array) {
+        if(!empty($array['label'])) {
+            $string = '<label ';
+
+            if(!empty($array['labelattr'])) {
+                foreach($array['labelattr'] as $key => $val) {
+                    if($key == 'class') {
+                        $classes = implode(' ', $val);
+                        $string .= 'class="' . $classes . '"';
+                    }
+                    else {
+                        $string .= $key . '="' . $val . '"';
+                    }
+                }
+            }
+
+            $string .= '>' . $array['label'] . '</label>';
+            return $string;
+        }
+        else {
+            return NULL;
+        }
+    }
+
+
+    /**
+     * Determine value of form element.
+     * 
+     * Determines the value of the current form element based on editdata, POST, and GET values. Special cases made for checkbox and switch elements.
+     * 
+     * @return void
+     * @see editdata
+     * @see field()
+     * @see attr()
+     */
+    protected function determineValue() {
+        // if EDITDATA exists use it
+        if(isset($this->editdata[$this->currentfield])) {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
+                if($this->form[$this->currentfield]['attr']['value'] == $this->editdata[$this->currentfield]) {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
+                else {
+                    $this->form[$this->currentfield]['attr']['checked'] = false;
+                }
+            }
+            else {
+                $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
+            }
+        }
+
+        // if POST exists use it
+        if(isset($_POST[$this->currentfield])) {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
+                if($this->form[$this->currentfield]['attr']['value'] == $_POST[$this->currentfield]) {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
+                else {
+                    $this->form[$this->currentfield]['attr']['checked'] = false;
+                }
+            }
+            else {
+                $this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
+            }
+        }
+
+        // if GET exists use it
+        if(isset($_GET[$this->currentfield])) {
+            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
+                if($this->form[$this->currentfield]['attr']['value'] == $_GET[$this->currentfield]) {
+                    $this->form[$this->currentfield]['attr']['checked'] = true;
+                }
+                else {
+                    $this->form[$this->currentfield]['attr']['checked'] = false;
+                }
+            }
+            else {
+                $this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
+            }
+        }
     }
 
 
@@ -285,9 +483,6 @@ class Formbuilder {
      * 
      * @param string $name The field name to render.
      * @return string
-     * @see createAttributes()
-     * @see createLabel()
-     * @see show()
      * @see showForm()
      */
     public function show(string $name) {
@@ -458,193 +653,14 @@ class Formbuilder {
     }
 
 
-
-    /**
-     * Creates an attribute string.
-     * 
-     * Creates an attribute string based on the master form array definitions.
-     * 
-     * @param array $array Array of form element definitions.
-     * @return string
-     * @see createLabel()
-     * @see show()
-     * @see showForm()
-     */
-    protected function createAttributes(array $array) {
-		// make class array into a string
-		if(!empty($array['attr']['class'])) {
-			$array['attr']['class'] = implode(' ', $array['attr']['class']);
-		}
-
-		// string for attributes
-		$string = NULL;
-
-		// define array of non-used attributes
-		$notused = array();
-
-		// each element has an array of attributes to NOT USE
-		switch($array['attr']['type']) {
-			case 'button':
-				$notused = array('checked', 'placeholder');
-				break;
-
-			case 'checkbox':
-				$notused = array('placeholder');
-				break;
-
-			case 'radio':
-				$notused = array('autofocus', 'placeholder');
-				break;
-
-			case 'select':
-				$notused = array('type', 'checked', 'value');
-				break;
-
-            case 'switch':
-                $notused = array('placeholder'); 
-                break;
-
-			case 'textarea':
-				$notused = array('type', 'checked', 'value');
-				break;
-
-			// inputs and undefined elements
-			default:
-				$notused = array('checked');
-		}
-
-		// step thru the array adding attributes
-		foreach($array['attr'] as $key => $val) {
-			if(!in_array($key, $notused)) {
-				if(is_bool($val)) {
-					if($val == true) {
-						$string .= ' ' . $key;
-					}
-				}
-				else {
-					// allows for VALUE to be set to zero!
-					if(!empty($val) || $val == 0) {
-						$string .= ' ' . $key . '="' . htmlentities((string)$val, ENT_QUOTES) . '"';
-					}
-				}
-			}
-		}
-
-		// return the string
-		return $string;
-    }
-
-
-
-	/**
-     * Create label HTML.
-     * 
-     * Creates the label for a form element based on the master form array definitions.
-     * 
-     * @param array $array Array of form label definitions.
-     * @return mixed
-     * @see createAttributes()
-     * @see show()
-     * @see showForm()
-	 */
-    protected function createLabel(array $array) {
-        if(!empty($array['label'])) {
-            $string = '<label ';
-
-            if(!empty($array['labelattr'])) {
-                foreach($array['labelattr'] as $key => $val) {
-                    if($key == 'class') {
-                        $classes = implode(' ', $val);
-                        $string .= 'class="' . $classes . '"';
-                    }
-                    else {
-                        $string .= $key . '="' . $val . '"';
-                    }
-                }
-            }
-
-            $string .= '>' . $array['label'] . '</label>';
-            return $string;
-        }
-        else {
-            return NULL;
-        }
-    }
-
-
-
-    /**
-     * Determine value of form element.
-     * 
-     * Determines the value of the current form element based on editdata, POST, and GET values. Special cases made for checkbox and switch elements.
-     * 
-     * @return void
-     * @see editdata
-     * @see field()
-     * @see attr()
-     */
-    protected function determineValue() {
-        // if EDITDATA exists use it
-        if(isset($this->editdata[$this->currentfield])) {
-            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
-                if($this->form[$this->currentfield]['attr']['value'] == $this->editdata[$this->currentfield]) {
-                    $this->form[$this->currentfield]['attr']['checked'] = true;
-                }
-                else {
-                    $this->form[$this->currentfield]['attr']['checked'] = false;
-                }
-            }
-            else {
-                $this->form[$this->currentfield]['attr']['value'] = $this->editdata[$this->currentfield];
-            }
-        }
-
-        // if POST exists use it
-        if(isset($_POST[$this->currentfield])) {
-            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
-                if($this->form[$this->currentfield]['attr']['value'] == $_POST[$this->currentfield]) {
-                    $this->form[$this->currentfield]['attr']['checked'] = true;
-                }
-                else {
-                    $this->form[$this->currentfield]['attr']['checked'] = false;
-                }
-            }
-            else {
-                $this->form[$this->currentfield]['attr']['value'] = $_POST[$this->currentfield];
-            }
-        }
-
-        // if GET exists use it
-        if(isset($_GET[$this->currentfield])) {
-            if($this->form[$this->currentfield]['attr']['type'] == 'checkbox' || $this->form[$this->currentfield]['attr']['type'] == 'switch') {
-                if($this->form[$this->currentfield]['attr']['value'] == $_GET[$this->currentfield]) {
-                    $this->form[$this->currentfield]['attr']['checked'] = true;
-                }
-                else {
-                    $this->form[$this->currentfield]['attr']['checked'] = false;
-                }
-            }
-            else {
-                $this->form[$this->currentfield]['attr']['value'] = $_GET[$this->currentfield];
-            }
-        }
-    }
-
-
-
-
-
-
-
     /**
      * Renders form HTML.
      * 
      * Renders form HTML including defined form attributes. Wraps each form element in a div based on the form type defined in the construct().
      * 
      * @return string
-     * @see construct()
+     * @see show()
      */
-
     public function showForm() {
         // create form attributes from array
         $attributes = NULL;
@@ -680,46 +696,6 @@ class Formbuilder {
     }
 
 
-
-
-    /**
-     * Add attributes to the form.
-     * 
-     * @param string $key The type of attribute.
-     * @param string $val The value of the attribute.
-     * @return object
-     * @see showForm()
-     */
-    public function formAttr(string $key, string $val) {
-        // if class attribute, add to an array
-        if($key == 'class') {
-            $this->formattr[$key][] = $val;
-        }
-        else {
-            $this->formattr[$key] = $val;
-        }
-
-        return $this;
-    }
-
-
-
-    /**
-     * Define data used to prepopulate the form.
-     * 
-     * This data typically comes from a database record. It is an associative array of name and values, where the array keys are form field names.
-     * 
-     * @param array $data Associative array of form values.
-     * @return void
-     */
-    public function setEditData(array $data) {
-        $this->editdata = $data;
-    }
-
-
-
-
-
     /**
      * Show the object for debugging.
      * 
@@ -733,6 +709,5 @@ class Formbuilder {
 
 
 } // end class
-
 
 ?>

@@ -9,6 +9,8 @@
  * @version 7.0
  * @revision 2026-05-22 Added ability to chain methods
  * @todo change default choices array in construct() to something inherently useful
+ * @todo remove "name" attribute from submit buttons to prevent showing in POST data
+ * @todo use htmlspecialchars() in setEditData?
  */
 
 namespace Hypnokizer;

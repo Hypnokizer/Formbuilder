@@ -1,0 +1,9 @@
+{
+    "name": "hypnokizer/formbuilder",
+    "description": "Class to build HTML forms",
+    "homepage": "https://github.com/Hypnokizer/Formbuilder",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3.0"
+    }
+}

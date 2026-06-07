@@ -1,9 +1,21 @@
 {
     "name": "hypnokizer/formbuilder",
     "description": "Class to build HTML forms",
-    "homepage": "https://github.com/Hypnokizer/Formbuilder",
+    "type": "library",
     "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hypnokizer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Nathan Kizer",
+            "email": "hypnokizer@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
     "require": {
-        "php": ">=8.3.0"
+	"php": ">=8.3.0"	
     }
 }

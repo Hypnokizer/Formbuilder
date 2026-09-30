@@ -136,7 +136,7 @@ class Formbuilder {
      * @see hidden()
      * @see datalist()
      */
-    public function field(string $type, string $name, string $label = NULL) {
+    public function field(string $type, string $name, string|null $label = NULL) {
 		// set the master key
 		$this->currentfield = $name;
 

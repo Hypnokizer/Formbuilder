@@ -14,8 +14,8 @@
             "email": "hypnokizer@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
-	"php": ">=8.3.0"	
-    }
+	"php": ">=8.1"
+    },
+    "minimum-stability": "stable"
 }
